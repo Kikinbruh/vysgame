@@ -1,6 +1,14 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+const playerrunning = new Image();
+playerrunning.src = "https://kikinbruh.github.io/vysgame/images/figure.png";
+let playerReady = false;
+playerrunning.onload = () => {
+  playerReady = true;
+  gameLoop();
+};
+
 // Game variables
 let player = { x: 50, y: 250, width: 30, height: 30, vy: 0, jumping: false };
 let gravity = 1;
@@ -19,13 +27,18 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+function drawPlayer() {
+  if (playerReady) {
+    ctx.drawImage(playerrunning, player.x, player.y, player.width, player.height);
+  }
+}
+
 // Game loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw player
-  ctx.fillStyle = 'blue';
-  ctx.fillRect(player.x, player.y, player.width, player.height);
+  drawPlayer();
 
   // Gravity
   player.vy += gravity;
@@ -43,4 +56,4 @@ function gameLoop() {
   if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+ gameLoop();
