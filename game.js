@@ -11,25 +11,54 @@ playerrunning.onload = () => {
 
 // Game variables
 let player = { x: 50, y: 250, width: 30, height: 30, vy: 0, jumping: false };
-let gravity = 1;
+let gravity = 0.2; // Even slower fall
 let obstacles = [];
 let gameOver = false;
 let jumpCount = 0; // instead of counter
+
+let isJumpingAnim = false;
+let jumpAnimFrame = 0;
+let jumpAnimTimer = 0;
+const jumpAnimFrameDuration = 12; // Slower animation (higher number = slower)
 
 // Keydown event listener (must be after player is defined)
 window.addEventListener('keydown', (e) => {
   console.log("jump")
   if (e.code === 'Space' && jumpCount < 2) {
     e.preventDefault();
-    player.vy = -15;
+    player.vy = -6.5;   // Higher jump
     player.jumping = true;
     jumpCount++;
+    isJumpingAnim = true;
+    jumpAnimFrame = 0;
+    jumpAnimTimer = 0;
   }
 });
 
+const jumpFrames = [];
+const totalJumpFrames = 5;
+let jumpFramesLoaded = 0;
+
+  for (let i = 1; i <= totalJumpFrames; i++) {
+    const img = new Image();
+    img.src = `https://kikinbruh.github.io/vysgame/images/jumping_frames${i}.png`;
+    img.onload = () => {
+      jumpFramesLoaded++;
+      if (jumpFramesLoaded === totalJumpFrames) {
+        playerReady = true;
+        gameLoop();
+      }
+    };
+    jumpFrames.push(img);
+  }
+
 function drawPlayer() {
   if (playerReady) {
-    ctx.drawImage(playerrunning, player.x, player.y, player.width, player.height);
+    if (isJumpingAnim) {
+      ctx.drawImage(jumpFrames[jumpAnimFrame], player.x, player.y, player.width, player.height);
+    } else {
+      ctx.drawImage(playerrunning, player.x, player.y, player.width, player.height);
+    }
   }
 }
 
@@ -44,11 +73,23 @@ function gameLoop() {
   player.vy += gravity;
   player.y += player.vy;
 
+  if (isJumpingAnim) {
+    jumpAnimTimer++;
+    if (jumpAnimTimer >= jumpAnimFrameDuration) {
+      jumpAnimTimer = 0;
+      jumpAnimFrame++;
+      if (jumpAnimFrame >= jumpFrames.length) {
+        jumpAnimFrame = jumpFrames.length - 1; // Hold on last frame
+      }
+    }
+  }
   if (player.y >= 250) {
     player.y = 250;
     player.vy = 0;
     player.jumping = false;
-    jumpCount = 0; // reset jumps when on the ground
+    jumpCount = 0;
+    isJumpingAnim = false;
+    jumpAnimFrame = 0;
   }
 
   // TODO: Draw obstacles, check collisions, add controls
