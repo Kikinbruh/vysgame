@@ -13,6 +13,9 @@ playerrunning.onload = () => {
 let player = { x: 50, y: 250, width: 30, height: 30, vy: 0, jumping: false };
 let gravity = 0.2; // Even slower fall
 let obstacles = [];
+let obstacleTimer = 0;
+let obstacleInterval = getRandomInterval();
+const obstacleSpeed = 3;     // how fast obstacles move left
 let gameOver = false;
 let jumpCount = 0; // instead of counter
 
@@ -92,9 +95,52 @@ function gameLoop() {
     jumpAnimFrame = 0;
   }
 
-  // TODO: Draw obstacles, check collisions, add controls
+  // Spawn new obstacles
+  obstacleTimer++;
+  if (obstacleTimer >= obstacleInterval) {
+    obstacleTimer = 0;
+    // Randomize height/width if you want, or keep constant
+    obstacles.push({
+      x: canvas.width,
+      y: 250 + player.height - 20, // ground level, adjust as needed
+      width: 30,
+      height: 30
+    });
+    obstacleInterval = getRandomInterval(); // Set new random interval
+  }
+
+  // Move obstacles and draw them
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    obstacles[i].x -= obstacleSpeed;
+    ctx.fillStyle = "black";
+    ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+
+    // Remove if off screen
+    if (obstacles[i].x + obstacles[i].width < 0) {
+      obstacles.splice(i, 1);
+    }
+  }
+
+  // Check for collision
+  for (let obs of obstacles) {
+    if (
+      player.x < obs.x + obs.width &&
+      player.x + player.width > obs.x &&
+      player.y < obs.y + obs.height &&
+      player.y + player.height > obs.y
+    ) {
+      gameOver = true;
+      alert("Finalní skóre ____ #todo nejakej counter :D!");
+      return;
+    }
+  }
 
   if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
- gameLoop();
+function getRandomInterval() {
+  // For example, between 80 and 200 frames
+  return Math.floor(Math.random() * 120) + 80;
+}
+
+gameLoop();
