@@ -18,11 +18,13 @@ let obstacleInterval = getRandomInterval();
 const obstacleSpeed = 3;     // how fast obstacles move left
 let gameOver = false;
 let jumpCount = 0; // instead of counter
-
 let isJumpingAnim = false;
 let jumpAnimFrame = 0;
 let jumpAnimTimer = 0;
 const jumpAnimFrameDuration = 12; // Slower animation (higher number = slower)
+let score = 0;
+const score_timer = 15;
+let current_timer = 0;
 
 // Keydown event listener (must be after player is defined)
 window.addEventListener('keydown', (e) => {
@@ -68,11 +70,14 @@ function drawPlayer() {
 // Game loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+  ctx.fillText("Skóre: " + score, 30, 30);
 
-  // Draw player
+
+  
   drawPlayer();
 
-  // Gravity
   player.vy += gravity;
   player.y += player.vy;
 
@@ -99,14 +104,31 @@ function gameLoop() {
   obstacleTimer++;
   if (obstacleTimer >= obstacleInterval) {
     obstacleTimer = 0;
-    // Randomize height/width if you want, or keep constant
+    const minHeight = 20;
+    const maxHeight = 90;
+    const doubleJumpMin = 50;
+    const minWidth = 20;
+    const maxDoubleWidth = 80;
+    const maxSingleWidth = 40;
+    const requiresDoubleJump = Math.random() < 0.80;
+
+    const obstacleHeight = requiresDoubleJump
+      ? Math.floor(Math.random() * (maxHeight - doubleJumpMin)) + doubleJumpMin
+      : Math.floor(Math.random() * (doubleJumpMin - minHeight)) + minHeight;
+
+    const obstacleWidth = requiresDoubleJump
+      ? Math.floor(Math.random() * (maxDoubleWidth - minWidth)) + minWidth
+      : Math.floor(Math.random() * (maxSingleWidth - minWidth)) + minWidth;
+    const groundY = 300;
+    const obstacleY = groundY - obstacleHeight;
+
     obstacles.push({
       x: canvas.width,
-      y: 250 + player.height - 20, // ground level, adjust as needed
-      width: 30,
-      height: 30
+      y: obstacleY,
+      width: obstacleWidth,
+      height: obstacleHeight
     });
-    obstacleInterval = getRandomInterval(); // Set new random interval
+    obstacleInterval = getRandomInterval();
   }
 
   // Move obstacles and draw them
@@ -130,17 +152,21 @@ function gameLoop() {
       player.y + player.height > obs.y
     ) {
       gameOver = true;
-      alert("Finalní skóre ____ #todo nejakej counter :D!");
+      alert("Finalní skóre " + score  + "!");
       return;
     }
   }
-
+  current_timer++;
+  if (current_timer >= score_timer ){
+    score++;
+    current_timer = 0;
+  }
   if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
 function getRandomInterval() {
   // For example, between 80 and 200 frames
-  return Math.floor(Math.random() * 120) + 80;
+  return Math.floor(Math.random() * 185) + 90;
 }
 
 gameLoop();
