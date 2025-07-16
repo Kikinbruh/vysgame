@@ -26,19 +26,25 @@ let score = 0;
 const score_timer = 15;
 let current_timer = 0;
 
-// Keydown event listener (must be after player is defined)
 window.addEventListener('keydown', (e) => {
-  console.log("jump")
-  if (e.code === 'Space' && jumpCount < 2) {
-    e.preventDefault();
-    player.vy = -6.5;   // Higher jump
+  const spacePressed = e.code === 'Space';
+  handleJumpTrigger(spacePressed);
+});
+window.addEventListener('mousedown', (e) => {
+  const leftClick = e.button === 0;
+  handleJumpTrigger(leftClick);
+});
+
+function handleJumpTrigger(triggered) {
+  if (triggered && jumpCount < 2) {
+    player.vy = -6.5;
     player.jumping = true;
     jumpCount++;
     isJumpingAnim = true;
     jumpAnimFrame = 0;
     jumpAnimTimer = 0;
   }
-});
+}
 
 const jumpFrames = [];
 const totalJumpFrames = 5;
