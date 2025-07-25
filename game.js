@@ -49,21 +49,6 @@ if (e.code === 'KeyS' || e.code === 'ArrowDown') {
 }
 });
 
-// 1. Add global frame counter for throttling
-let globalFrame = 0;
-
-// 3. Dynamic canvas size for mobile/desktop
-function isMobile() {
-  return /Mobi|Android/i.test(navigator.userAgent);
-}
-if (isMobile()) {
-  canvas.width = 800;
-  canvas.height = 450;
-} else {
-  canvas.width = 1200;
-  canvas.height = 600;
-}
-
 // Touch controls for mobile
 let touchStartY = null;
 let touchStartX = null;
@@ -78,24 +63,32 @@ canvas.addEventListener('touchstart', function(e) {
   }
 }, { passive: false });
 
-// 5. Use passive: true for touchmove, and remove preventDefault
 canvas.addEventListener('touchmove', function(e) {
+  e.preventDefault();
   touchMoved = true;
-}, { passive: true });
+}, { passive: false });
 
 canvas.addEventListener('touchend', function(e) {
   e.preventDefault();
   if (touchStartY === null) return;
+
+  // Get end position
   let touchEndY = e.changedTouches[0].clientY;
   let touchEndX = e.changedTouches[0].clientX;
   let deltaY = touchEndY - touchStartY;
   let deltaX = touchEndX - touchStartX;
-  const swipeThreshold = 40;
+
+  // Thresholds
+  const swipeThreshold = 40; // px
+
   if (!touchMoved || (Math.abs(deltaY) < 10 && Math.abs(deltaX) < 10)) {
+    // Treat as tap (jump)
     handleJumpTrigger();
   } else if (deltaY > swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+    // Swipe down (slide)
     startSlide();
   }
+
   touchStartY = null;
   touchStartX = null;
   touchMoved = false;
@@ -223,7 +216,6 @@ function drawBackground() {
 
 // Game loop
 function gameLoop() {
-  globalFrame++;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
   // Always draw the live score counter at the top left
@@ -235,19 +227,14 @@ function gameLoop() {
   player.vy += gravity;
   player.y += player.vy;
 
-  // 1. Throttle animation updates
-  const shouldUpdateAnim = globalFrame % 2 === 0;
-
   if (isSliding) {
     slideTimer++;
-    if (shouldUpdateAnim) {
-      slidingAnimTimer++;
-      if (slidingAnimTimer >= slidingAnimFrameDuration) {
-        slidingAnimTimer = 0;
-        slidingAnimFrame++;
-        if (slidingAnimFrame >= slidingFrames.length) {
-          slidingAnimFrame = slidingFrames.length - 1; // Hold last frame
-        }
+    slidingAnimTimer++;
+    if (slidingAnimTimer >= slidingAnimFrameDuration) {
+      slidingAnimTimer = 0;
+      slidingAnimFrame++;
+      if (slidingAnimFrame >= slidingFrames.length) {
+        slidingAnimFrame = slidingFrames.length - 1; // Hold last frame
       }
     }
     // When slide ends (in gameLoop)
@@ -263,7 +250,7 @@ function gameLoop() {
     }
   }
 
-  if (isJumpingAnim && shouldUpdateAnim) {
+  if (isJumpingAnim) {
     jumpAnimTimer++;
     if (jumpAnimTimer >= jumpAnimFrameDuration) {
       jumpAnimTimer = 0;
@@ -272,7 +259,7 @@ function gameLoop() {
         jumpAnimFrame = jumpFrames.length - 1; // Hold on last frame
       }
     }
-  } else if (!isSliding && player.y >= groundY - player.height && shouldUpdateAnim) {
+  } else if (!isSliding && player.y >= groundY - player.height) {
     // Running animation
     runningAnimTimer++;
     if (runningAnimTimer >= runningAnimFrameDuration) {
@@ -376,12 +363,6 @@ function gameLoop() {
       });
     
       obstacleInterval = getRandomInterval();
-      // 2. Limit obstacles array length
-      if (obstacles.length > 12) {
-        // 7. Null out img before removing
-        if (obstacles[0].img) obstacles[0].img = null;
-        obstacles.shift();
-      }
     }
     
     
