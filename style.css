@@ -8,6 +8,15 @@ body {
 canvas {
   background: #ffffff;
   border: 1px solid #000;
+  /* Performance optimizations */
+  image-rendering: pixelated;
+  will-change: transform;
+  touch-action: manipulation;
+  /* Responsive scaling */
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
 }
 .press-start-2p-regular {
   font-family: "Press Start 2P", system-ui;
