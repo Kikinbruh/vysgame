@@ -9,3 +9,31 @@ canvas {
   background: #ffffff;
   border: 1px solid #000;
 }
+.press-start-2p-regular {
+  font-family: "Press Start 2P", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+#restartBtn {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 15px 30px;
+  font-size: 24px;
+  font-family: 'Arial', sans-serif;
+  background-color: #ff4747;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#restartBtn:hover {
+  background-color: #d43838;
+  transform: translate(-50%, -50%) scale(1.05);
+}
