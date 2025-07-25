@@ -18,7 +18,7 @@ canvas {
 
 #restartBtn {
   position: absolute;
-  top: 45%;
+  top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 15px 30px;
@@ -33,7 +33,29 @@ canvas {
   transition: all 0.3s ease;
 }
 
-#restartBtn:hover {
-  background-color: #d43838;
-  transform: translate(-50%, -50%) scale(1.05);
+#gameContainer {
+  position: relative;
+  display: inline-block;
+}
+
+#skipBtn {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  transform: translateX(-50%);
+  padding: 15px 30px;
+  font-size: 24px;
+  font-family: 'Arial', sans-serif;
+  background-color: #b925ca;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#skipBtn:hover {
+  background-color: #851ac8;
+  transform: translateX(-50%) scale(1.05);
 }
