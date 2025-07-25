@@ -35,10 +35,15 @@ const score_timer = 15;
 let current_timer = 0;
 let controlsExpl = 900;
 let showcontrols = true;
+let mobileControlsExpl = 900;
+let showmobilecontrols = false;
+let showinstructions = false; // start as false
+let showinstructions_timer = 900;
 let isSliding = false;
 let slideTimer = 0;
 const slideDuration = 50; // frames
 const restartBtn = document.getElementById('restartBtn');
+const skipBtn = document.getElementById('skipBtn');
 window.addEventListener('keydown', (e) => {
   e.preventDefault();
   if (e.code === 'KeyW' || e.code === 'ArrowUp'){
@@ -64,31 +69,24 @@ canvas.addEventListener('touchstart', function(e) {
 }, { passive: false });
 
 canvas.addEventListener('touchmove', function(e) {
-  e.preventDefault();
   touchMoved = true;
-}, { passive: false });
+}, { passive: true });
 
 canvas.addEventListener('touchend', function(e) {
   e.preventDefault();
   if (touchStartY === null) return;
-
-  // Get end position
   let touchEndY = e.changedTouches[0].clientY;
   let touchEndX = e.changedTouches[0].clientX;
   let deltaY = touchEndY - touchStartY;
   let deltaX = touchEndX - touchStartX;
-
-  // Thresholds
-  const swipeThreshold = 40; // px
-
-  if (!touchMoved || (Math.abs(deltaY) < 10 && Math.abs(deltaX) < 10)) {
-    // Treat as tap (jump)
+  const swipeThreshold = 40;
+  // Swipe up to jump
+  if (deltaY < -swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
     handleJumpTrigger();
   } else if (deltaY > swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
-    // Swipe down (slide)
+    // Swipe down to slide
     startSlide();
   }
-
   touchStartY = null;
   touchStartX = null;
   touchMoved = false;
@@ -289,25 +287,79 @@ function gameLoop() {
     isFrontFlipping = false;
     frontFlipRotation = 0;
   }
-  if (showcontrols){
+  if (showcontrols) {
     ctx.fillStyle = "black";
     ctx.font = "16px 'Press Start 2P'";
-    const text0 = "Ovládání"
-    ctx.fillText(text0, (canvas.width - ctx.measureText(text0).width) / 2, canvas.height / 2 - 60);
+    const text0 = "Ovládání pro PC";
     ctx.font = "12px 'Press Start 2P'";
-    const text1 =  "šipka nahoru / W pro skok, 2krát pro doublejump,"
-    const text1_width = ctx.measureText(text1).width;
-    const text2 = "šipka dolů / S pro skrčení"
-    const text2_width = ctx.measureText(text1).width;
-    ctx.fillText(text1, (canvas.width - text1_width) / 2, canvas.height / 2 - 30);
-    ctx.fillText(text2, (canvas.width - text2_width) / 2 , canvas.height / 2);
-  }
-  if (controlsExpl > 0){
+    const text1 = "šipka nahoru / W pro skok, 2krát pro doublejump,";
+    const text2 = "šipka dolů / S pro skrčení";
+    // Left side (PC controls)
+    const leftX = canvas.width / 2;
+    let y = canvas.height / 2 - 40;
+    ctx.font = "16px 'Press Start 2P'";
+    ctx.fillText(text0, leftX - ctx.measureText(text0).width / 2, y);
+    ctx.font = "12px 'Press Start 2P'";
+    ctx.fillText(text1, leftX - ctx.measureText(text1).width / 2, y + 30);
+    ctx.fillText(text2, leftX - ctx.measureText(text2).width / 2, y + 60);
     controlsExpl--;
-  } else showcontrols = false;
+    if (controlsExpl <= 0) {
+      showcontrols = false;
+      showmobilecontrols = true;
+      mobileControlsExpl = 900;
+    }
+  } else if (showmobilecontrols) {
+    ctx.fillStyle = "black";
+    ctx.font = "16px 'Press Start 2P'";
+    const text3 = "Ovládání pro mobil";
+    ctx.font = "12px 'Press Start 2P'";
+    const text4 = "Potáhní nahoru pro skok, 2krát pro doublejump";
+    const text5 = "Potáhní dolů pro skrčení";
+    const rightX = canvas.width / 2;
+    let y = canvas.height / 2 - 40;
+    ctx.font = "16px 'Press Start 2P'";
+    ctx.fillText(text3, rightX - ctx.measureText(text3).width / 2, y);
+    ctx.font = "12px 'Press Start 2P'";
+    ctx.fillText(text4, rightX - ctx.measureText(text4).width / 2, y + 30);
+    ctx.fillText(text5, rightX - ctx.measureText(text5).width / 2, y + 60);
+    mobileControlsExpl--;
+    if (mobileControlsExpl <= 0) {
+      showmobilecontrols = false;
+      showinstructions = true;
+      showinstructions_timer = 900;
+    }
+  } else if (showinstructions) {
+    ctx.fillStyle = "black";
+    ctx.font = "16px 'Press Start 2P'";
+    const text0 = "Na cem muzeme chodit a na cem ne?";
+    const text1 = "Ano";
+    const text2 = "Ne";
+    ctx.fillText(text0, (canvas.width - ctx.measureText(text0).width) / 2, canvas.height / 2 - 60);
+    // Draw 'Ano' label and large obstacle images
+    const anoX = canvas.width / 4;
+    ctx.fillText(text1, anoX - ctx.measureText(text1).width / 2, canvas.height / 2);
+    let imgY = canvas.height / 2 + 10;
+    let imgSize = 40;
+    let imgSpacing = 10;
+    let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing) / 2);
+    for (let i = 0; i < obstacleImages.large.length; i++) {
+      ctx.drawImage(obstacleImages.large[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+    }
+    // Draw 'Ne' label and small obstacle images
+    const neX = (canvas.width * 3) / 4;
+    ctx.fillText(text2, neX - ctx.measureText(text2).width / 2, canvas.height / 2);
+    startX = neX - ((obstacleImages.small.length * imgSize + (obstacleImages.small.length - 1) * imgSpacing) / 2);
+    for (let i = 0; i < obstacleImages.small.length; i++) {
+      ctx.drawImage(obstacleImages.small[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+    }
+    showinstructions_timer--;
+    if (showinstructions_timer <= 0) {
+      showinstructions = false;
+      skipBtn.style.display = 'none';
+    }
+  }
 
-  // Spawn new obstacles
-  if (!showcontrols){
+  if (!showcontrols && !showinstructions && !showmobilecontrols) {
     obstacleTimer++;
     if (obstacleTimer >= obstacleInterval) {
       obstacleTimer = 0;
@@ -384,6 +436,7 @@ function gameLoop() {
     }
 
     // Check for collision
+    let standingOnObstacle = false;
     for (let obs of obstacles) {
       const hitbox = {
         x: player.x + (player.hitbox.offsetX || 0),
@@ -391,15 +444,59 @@ function gameLoop() {
         width: player.hitbox.width || player.width,
         height: player.hitbox.height || player.height
       };
+      // Check if player's feet are exactly on top of the obstacle
+      const playerBottom = hitbox.y + hitbox.height;
+      const obsTop = obs.y;
+      const isOnTop =
+        player.vy >= 0 &&
+        playerBottom <= obsTop + 6 && // allow a small margin for float rounding
+        playerBottom >= obsTop - 6 &&
+        hitbox.x < obs.x + obs.width &&
+        hitbox.x + hitbox.width > obs.x;
+      // Only allow standing on large obstacles
+      const isLargeObstacle = obstacleImages.large.includes(obs.img);
+      if (isOnTop && isLargeObstacle) {
+        // Stand on large obstacle
+        player.y = obs.y - player.height;
+        player.vy = 0;
+        player.jumping = false;
+        jumpCount = 0;
+        isJumpingAnim = false;
+        jumpAnimFrame = 0;
+        isFrontFlipping = false;
+        frontFlipRotation = 0;
+        standingOnObstacle = true;
+        break;
+      }
+      // If on top of a small obstacle, treat as deadly
+      if (isOnTop && !isLargeObstacle) {
+        gameOver = true;
+        break;
+      }
+      // Otherwise, check for collision (sides or bottom)
       if (
         hitbox.x < obs.x + obs.width &&
         hitbox.x + hitbox.width > obs.x &&
         hitbox.y < obs.y + obs.height &&
         hitbox.y + hitbox.height > obs.y
       ) {
-        gameOver = true;
-        break; // Exit the collision loop, but let the rest of gameLoop run
+        // Only trigger game over if not standing on top of a large obstacle
+        if (!(isOnTop && isLargeObstacle)) {
+          gameOver = true;
+          break;
+        }
       }
+    }
+    // If not standing on any obstacle and below ground, snap to ground
+    if (!standingOnObstacle && player.y > groundY - player.height) {
+      player.y = groundY - player.height;
+      player.vy = 0;
+      player.jumping = false;
+      jumpCount = 0;
+      isJumpingAnim = false;
+      jumpAnimFrame = 0;
+      isFrontFlipping = false;
+      frontFlipRotation = 0;
     }
   
     current_timer++;
@@ -429,6 +526,14 @@ function showGameOver() {
 
 restartBtn.addEventListener('click', function() {
   window.location.reload();
+});
+
+skipBtn.addEventListener('click', function() {
+  showinstructions = false;
+  showcontrols = false;
+  showmobilecontrols = false;
+  skipBtn.style.display = 'none';
+  gameLoop();
 });
 
 function getRandomInterval() {
