@@ -10,39 +10,129 @@ playerrunning.onload = () => {
 };
 
 // Game variables
-let player = { x: 50, y: 250, width: 30, height: 30, vy: 0, jumping: false };
+let groundY = 300;
+let player = {
+  x: 50,
+  y: groundY - 40, // was groundY - 30
+  width: 40,        // was 30
+  height: 40,       // was 30
+  vy: 0,
+  jumping: false,
+  hitbox: { offsetX: 0, offsetY: 0, width: 40, height: 40 } // was 30x30
+};
 let gravity = 0.2; // Even slower fall
 let obstacles = [];
 let obstacleTimer = 0;
 let obstacleInterval = getRandomInterval();
-const obstacleSpeed = 3;     // how fast obstacles move left
+let speedLevel = 0;
+const obstacleSpeed = 3 + speedLevel;     // how fast obstacles move left
 let gameOver = false;
 let jumpCount = 0; // instead of counter
 let isJumpingAnim = false;
 let jumpAnimFrame = 0;
 let jumpAnimTimer = 0;
 const jumpAnimFrameDuration = 12; // Slower animation (higher number = slower)
+
+// Front flip animation variables
+let isFrontFlipping = false;
+let frontFlipRotation = 0;
+let frontFlipImage = new Image();
+frontFlipImage.src = "images/frnt.png";
 let score = 0;
 const score_timer = 15;
 let current_timer = 0;
-
+let controlsExpl = 900;
+let showcontrols = true;
+let isSliding = false;
+let slideTimer = 0;
+const slideDuration = 50; // frames
+const restartBtn = document.getElementById('restartBtn');
 window.addEventListener('keydown', (e) => {
-  const spacePressed = e.code === 'Space';
-  handleJumpTrigger(spacePressed);
-});
-window.addEventListener('mousedown', (e) => {
-  const leftClick = e.button === 0;
-  handleJumpTrigger(leftClick);
+  e.preventDefault();
+  if (e.code === 'KeyW' || e.code === 'ArrowUp'){
+  handleJumpTrigger();
+}
+if (e.code === 'KeyS' || e.code === 'ArrowDown') {
+  startSlide();
+}
 });
 
-function handleJumpTrigger(triggered) {
-  if (triggered && jumpCount < 2) {
+// Touch controls for mobile
+let touchStartY = null;
+let touchStartX = null;
+let touchMoved = false;
+
+canvas.addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  if (e.touches.length === 1) {
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+    touchMoved = false;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', function(e) {
+  e.preventDefault();
+  touchMoved = true;
+}, { passive: false });
+
+canvas.addEventListener('touchend', function(e) {
+  e.preventDefault();
+  if (touchStartY === null) return;
+
+  // Get end position
+  let touchEndY = e.changedTouches[0].clientY;
+  let touchEndX = e.changedTouches[0].clientX;
+  let deltaY = touchEndY - touchStartY;
+  let deltaX = touchEndX - touchStartX;
+
+  // Thresholds
+  const swipeThreshold = 40; // px
+
+  if (!touchMoved || (Math.abs(deltaY) < 10 && Math.abs(deltaX) < 10)) {
+    // Treat as tap (jump)
+    handleJumpTrigger();
+  } else if (deltaY > swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+    // Swipe down (slide)
+    startSlide();
+  }
+
+  touchStartY = null;
+  touchStartX = null;
+  touchMoved = false;
+}, { passive: false });
+
+
+function handleJumpTrigger() {
+  if (jumpCount < 2) {
     player.vy = -6.5;
     player.jumping = true;
     jumpCount++;
-    isJumpingAnim = true;
-    jumpAnimFrame = 0;
-    jumpAnimTimer = 0;
+    
+    if (jumpCount === 2) {
+      // Second jump - start front flip
+      isFrontFlipping = true;
+      frontFlipRotation = 0;
+      isJumpingAnim = false; // Disable regular jump animation
+    } else {
+      // First jump - use regular jump animation
+      isJumpingAnim = true;
+      jumpAnimFrame = 0;
+      jumpAnimTimer = 0;
+    }
+  }
+}
+
+function startSlide() {
+  if (!isSliding && player.y >= groundY - player.height) {
+    isSliding = true;
+    slideTimer = 0;
+    slidingAnimFrame = 0;
+    slidingAnimTimer = 0;
+    player.hitbox.height = 28; // was 20, now a bit smaller than sliding sprite
+    player.hitbox.offsetY = player.height - player.hitbox.height; // 12 if player.height is 40
+    player.height = 32; // set to sliding sprite height
+    player.y = groundY - player.height; // keep feet on ground
   }
 }
 
@@ -52,7 +142,7 @@ let jumpFramesLoaded = 0;
 
   for (let i = 1; i <= totalJumpFrames; i++) {
     const img = new Image();
-    img.src = `https://kikinbruh.github.io/vysgame/images/jumping_frames${i}.png`;
+    img.src = `images/jumping_frames${i}.png`;
     img.onload = () => {
       jumpFramesLoaded++;
       if (jumpFramesLoaded === totalJumpFrames) {
@@ -63,29 +153,113 @@ let jumpFramesLoaded = 0;
     jumpFrames.push(img);
   }
 
+const slidingFrames = [];
+const totalSlidingFrames = 8;
+let slidingFramesLoaded = 0;
+
+for (let i = 1; i <= totalSlidingFrames; i++) {
+  const img = new Image();
+  img.src = `images/sliding${i}.png`;
+  img.onload = () => {
+    slidingFramesLoaded++;
+    if (slidingFramesLoaded === totalSlidingFrames) {
+    }
+  };
+  slidingFrames.push(img);
+}
+
+const runningFrames = [];
+const total_runningframes = 8;
+let running_loaded = 0;
+for (let i = 1; i <= total_runningframes; i++) {
+  const img = new Image();
+  img.src = `images/running${i}.png`;
+  img.onload = () => {
+    running_loaded++;
+    if (running_loaded === total_runningframes) {
+    }
+  };
+  runningFrames.push(img);
+}
+
+let slidingAnimFrame = 0;
+let slidingAnimTimer = 0;
+const slidingAnimFrameDuration = 8;
+
+// Running animation variables
+let runningAnimFrame = 0;
+let runningAnimTimer = 0;
+const runningAnimFrameDuration = 12; // Increased from 8 to 12 for slower animation 
+
 function drawPlayer() {
   if (playerReady) {
-    if (isJumpingAnim) {
+    if (isSliding) {
+      // Example: make sliding sprite wider
+      const slidingWidth = 50; // scale up from 40
+      const slidingHeight = 32; // updated sliding height
+      ctx.drawImage(slidingFrames[slidingAnimFrame], player.x, player.y, slidingWidth, slidingHeight);
+    } else if (isFrontFlipping) {
+      ctx.save();
+      ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+      ctx.rotate(frontFlipRotation * Math.PI / 180);
+      ctx.drawImage(frontFlipImage, -player.width / 2, -player.height / 2, player.width, player.height);
+      ctx.restore();
+    } else if (isJumpingAnim) {
       ctx.drawImage(jumpFrames[jumpAnimFrame], player.x, player.y, player.width, player.height);
     } else {
-      ctx.drawImage(playerrunning, player.x, player.y, player.width, player.height);
+      ctx.drawImage(runningFrames[runningAnimFrame], player.x, player.y, player.width, player.height);
     }
   }
+}
+
+function drawBackground() {
+  // Adjust speed for parallax effect (slower than obstacles)
+  const bgSpeed = getObstacleSpeed() * 0.4;
+  backgroundX -= bgSpeed;
+  // Reset backgroundX to 0 when it has fully scrolled
+  if (backgroundX <= -canvas.width + 10) {
+    backgroundX = 0;
+  }
+  // Draw two images for seamless looping
+  ctx.drawImage(backgroundImg, backgroundX, 0, canvas.width + 10, canvas.height);
+  ctx.drawImage(backgroundImg, backgroundX + canvas.width, 0, canvas.width, canvas.height);
 }
 
 // Game loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBackground();
+  // Always draw the live score counter at the top left
   ctx.fillStyle = "black";
   ctx.font = "20px Arial";
-  ctx.fillText("Skóre: " + score, 30, 30);
-
-
-  
+  ctx.fillText("Skóre: " + score, 30, 40);
   drawPlayer();
 
   player.vy += gravity;
   player.y += player.vy;
+
+  if (isSliding) {
+    slideTimer++;
+    slidingAnimTimer++;
+    if (slidingAnimTimer >= slidingAnimFrameDuration) {
+      slidingAnimTimer = 0;
+      slidingAnimFrame++;
+      if (slidingAnimFrame >= slidingFrames.length) {
+        slidingAnimFrame = slidingFrames.length - 1; // Hold last frame
+      }
+    }
+    // When slide ends (in gameLoop)
+    if (slideTimer >= slideDuration) {
+      isSliding = false;
+      player.hitbox.height = 40; // restore original height
+      player.hitbox.offsetY = 0;
+      player.height = 40; // restore original height
+      // Adjust y so feet stay on ground
+      player.y = groundY - player.height;
+      slidingAnimFrame = 0;
+      slidingAnimTimer = 0;
+    }
+  }
 
   if (isJumpingAnim) {
     jumpAnimTimer++;
@@ -96,83 +270,201 @@ function gameLoop() {
         jumpAnimFrame = jumpFrames.length - 1; // Hold on last frame
       }
     }
+  } else if (!isSliding && player.y >= groundY - player.height) {
+    // Running animation
+    runningAnimTimer++;
+    if (runningAnimTimer >= runningAnimFrameDuration) {
+      runningAnimTimer = 0;
+      runningAnimFrame++;
+      if (runningAnimFrame >= runningFrames.length) {
+        runningAnimFrame = 0; // Loop back to first frame
+      }
+    }
   }
-  if (player.y >= 250) {
-    player.y = 250;
+  
+  // Front flip rotation logic
+  if (isFrontFlipping && player.vy > 0) {
+    // Only rotate when falling (vy > 0) to sync with jump duration
+    frontFlipRotation += 8; // Reduced from 15 to 8 for slower rotation
+    if (frontFlipRotation >= 270) {
+      frontFlipRotation = 270; // Stop at 270 degrees
+    }
+  }
+  if (player.y >= groundY - player.height) {
+    player.y = groundY - player.height;
     player.vy = 0;
     player.jumping = false;
     jumpCount = 0;
     isJumpingAnim = false;
     jumpAnimFrame = 0;
+    isFrontFlipping = false;
+    frontFlipRotation = 0;
   }
+  if (showcontrols){
+    ctx.fillStyle = "black";
+    ctx.font = "16px 'Press Start 2P'";
+    const text0 = "Ovládání"
+    ctx.fillText(text0, (canvas.width - ctx.measureText(text0).width) / 2, canvas.height / 2 - 60);
+    ctx.font = "12px 'Press Start 2P'";
+    const text1 =  "šipka nahoru / W pro skok, 2krát pro doublejump,"
+    const text1_width = ctx.measureText(text1).width;
+    const text2 = "šipka dolů / S pro skrčení"
+    const text2_width = ctx.measureText(text1).width;
+    ctx.fillText(text1, (canvas.width - text1_width) / 2, canvas.height / 2 - 30);
+    ctx.fillText(text2, (canvas.width - text2_width) / 2 , canvas.height / 2);
+  }
+  if (controlsExpl > 0){
+    controlsExpl--;
+  } else showcontrols = false;
 
   // Spawn new obstacles
-  obstacleTimer++;
-  if (obstacleTimer >= obstacleInterval) {
-    obstacleTimer = 0;
-    const minHeight = 20;
-    const maxHeight = 90;
-    const doubleJumpMin = 50;
-    const minWidth = 20;
-    const maxDoubleWidth = 80;
-    const maxSingleWidth = 40;
-    const requiresDoubleJump = Math.random() < 0.80;
+  if (!showcontrols){
+    obstacleTimer++;
+    if (obstacleTimer >= obstacleInterval) {
+      obstacleTimer = 0;
+    
+      const minHeight = 40;
+      const maxHeight = 200;
+      const minWidth = 20;
+      const maxDoubleWidth = 60;
+      const maxSingleWidth = 40;
+      const requiresDoubleJump = Math.random() < 0.70;
+      const isTopObstacle = Math.random() < 0.3;
+    
+      let obstacleHeight, obstacleWidth, obstacleY, obsImg;
+    
+      if (isTopObstacle) {
+        // Top obstacle: player must slide under
+        const slidingHitboxHeight = 28; // matches new sliding hitbox height
+        obstacleHeight = groundY - slidingHitboxHeight;
+        obstacleWidth = Math.floor(Math.random() * (7)) + 28;
+        obstacleY = 0;
+        obsImg = obstacleImages.up;
+      } else {
+        // Bottom obstacle
+        obstacleHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+    
+        obstacleWidth = requiresDoubleJump
+          ? Math.floor(Math.random() * (maxDoubleWidth - minWidth + 1)) + minWidth
+          : Math.floor(Math.random() * (maxSingleWidth - minWidth + 1)) + minWidth;
+    
+        // Clamp aspect ratio
+        if (obstacleWidth > 1.5 * obstacleHeight) obstacleWidth = 1.5 * obstacleHeight;
+        if (obstacleHeight > 1.5 * obstacleWidth) obstacleHeight = 1.5 * obstacleWidth;
+    
+        obstacleY = groundY - obstacleHeight;
+    
+        // ✅ Use large image if taller than player (40px)
+        if (obstacleHeight > player.height + 30) {
+          obsImg = obstacleImages.large[0];
+        } else if (obstacleHeight > 50) {
+          obsImg = obstacleImages.large[1];
+        }
+        else {
+          obsImg = obstacleImages.small[Math.floor(Math.random() * obstacleImages.small.length)];
+        }
+      }
+    
+      obstacles.push({
+        x: canvas.width,
+        y: obstacleY,
+        width: obstacleWidth,
+        height: obstacleHeight,
+        img: obsImg
+      });
+    
+      obstacleInterval = getRandomInterval();
+    }
+    
+    
 
-    const obstacleHeight = requiresDoubleJump
-      ? Math.floor(Math.random() * (maxHeight - doubleJumpMin)) + doubleJumpMin
-      : Math.floor(Math.random() * (doubleJumpMin - minHeight)) + minHeight;
+    // Move obstacles and draw them
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      obstacles[i].x -= getObstacleSpeed();
+      // Draw obstacle image stretched to its size
+      if (obstacles[i].img && obstacles[i].img.complete) {
+        ctx.drawImage(obstacles[i].img, obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+      } else {
+        ctx.fillStyle = "black";
+        ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+      }
+      // Remove if off screen
+      if (obstacles[i].x + obstacles[i].width < 0) {
+        obstacles.splice(i, 1);
+      }
+    }
 
-    const obstacleWidth = requiresDoubleJump
-      ? Math.floor(Math.random() * (maxDoubleWidth - minWidth)) + minWidth
-      : Math.floor(Math.random() * (maxSingleWidth - minWidth)) + minWidth;
-    const groundY = 300;
-    const obstacleY = groundY - obstacleHeight;
-
-    obstacles.push({
-      x: canvas.width,
-      y: obstacleY,
-      width: obstacleWidth,
-      height: obstacleHeight
-    });
-    obstacleInterval = getRandomInterval();
-  }
-
-  // Move obstacles and draw them
-  for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].x -= obstacleSpeed;
-    ctx.fillStyle = "black";
-    ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
-
-    // Remove if off screen
-    if (obstacles[i].x + obstacles[i].width < 0) {
-      obstacles.splice(i, 1);
+    // Check for collision
+    for (let obs of obstacles) {
+      const hitbox = {
+        x: player.x + (player.hitbox.offsetX || 0),
+        y: player.y + (player.hitbox.offsetY || 0),
+        width: player.hitbox.width || player.width,
+        height: player.hitbox.height || player.height
+      };
+      if (
+        hitbox.x < obs.x + obs.width &&
+        hitbox.x + hitbox.width > obs.x &&
+        hitbox.y < obs.y + obs.height &&
+        hitbox.y + hitbox.height > obs.y
+      ) {
+        gameOver = true;
+        break; // Exit the collision loop, but let the rest of gameLoop run
+      }
+    }
+  
+    current_timer++;
+    if (current_timer >= score_timer ){
+      score++;
+      current_timer = 0;
+      if (score % 80 === 0) {
+        speedLevel += 0.2;
+      }
     }
   }
-
-  // Check for collision
-  for (let obs of obstacles) {
-    if (
-      player.x < obs.x + obs.width &&
-      player.x + player.width > obs.x &&
-      player.y < obs.y + obs.height &&
-      player.y + player.height > obs.y
-    ) {
-      gameOver = true;
-      alert("Finalní skóre " + score  + "!");
-      return;
-    }
+  if (!gameOver) {
+    animationFrameId = requestAnimationFrame(gameLoop);
+  } else {
+    ctx.fillStyle = "red";
+    ctx.font = "50px Arial";
+    const score_display = "Finální skóre: " + score;
+    ctx.fillText(score_display, (canvas.width - ctx.measureText(score_display).width) / 2, canvas.height / 2 + 30);
+    showGameOver();
   }
-  current_timer++;
-  if (current_timer >= score_timer ){
-    score++;
-    current_timer = 0;
-  }
-  if (!gameOver) requestAnimationFrame(gameLoop);
 }
+
+function showGameOver() {
+  restartBtn.style.display = 'block';
+  restartBtn.textContent = `Hrát znovu`;
+}
+
+restartBtn.addEventListener('click', function() {
+  window.location.reload();
+});
 
 function getRandomInterval() {
-  // For example, between 80 and 200 frames
   return Math.floor(Math.random() * 185) + 90;
 }
+
+function getObstacleSpeed() {
+  return 3 + speedLevel;
+}
+
+// Preload obstacle images
+const obstacleImages = {
+  up: new Image(),
+  large: [new Image(), new Image()], // obs4, obs2
+  small: [new Image(), new Image(), new Image()] // obs1, obcs5, obs3
+};
+obstacleImages.up.src = "images/up_obs.png";
+obstacleImages.large[0].src = "images/obs4.png";
+obstacleImages.large[1].src = "images/obs2.png";
+obstacleImages.small[0].src = "images/obs1.png";
+obstacleImages.small[1].src = "images/obcs5.png";
+obstacleImages.small[2].src = "images/obs3.png";
+
+const backgroundImg = new Image();
+backgroundImg.src = "images/city.png";
+let backgroundX = 0;
 
 gameLoop();
