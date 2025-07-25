@@ -200,16 +200,13 @@ function drawPlayer() {
 }
 
 function drawBackground() {
-  // Adjust speed for parallax effect (slower than obstacles)
   const bgSpeed = getObstacleSpeed() * 0.4;
   backgroundX -= bgSpeed;
-  // Reset backgroundX to 0 when it has fully scrolled
-  if (backgroundX <= -canvas.width + 10) {
+  if (backgroundX <= -canvas.width) {
     backgroundX = 0;
   }
-  // Draw two images for seamless looping
-  ctx.drawImage(backgroundImg, backgroundX, 0, canvas.width + 10, canvas.height);
-  ctx.drawImage(backgroundImg, backgroundX + canvas.width, 0, canvas.width, canvas.height);
+  ctx.drawImage(backgroundImg, Math.round(backgroundX), 0, canvas.width, canvas.height);
+  ctx.drawImage(backgroundImg, Math.round(backgroundX + canvas.width), 0, canvas.width, canvas.height);
 }
 
 // Game loop
@@ -504,7 +501,7 @@ function gameLoop() {
       score++;
       current_timer = 0;
       if (score % 80 === 0) {
-        speedLevel += 0.2;
+        speedLevel += 0.4;
       }
     }
   }
@@ -533,6 +530,9 @@ skipBtn.addEventListener('click', function() {
   showcontrols = false;
   showmobilecontrols = false;
   skipBtn.style.display = 'none';
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
   gameLoop();
 });
 
