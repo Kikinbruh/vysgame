@@ -66,8 +66,8 @@ body.mobile-device #restartBtn:hover {
 }
 
 body.mobile-device #skipBtn {
-  top: 35%;
-  left: 70%;
+  top: 50%;
+  left: 85%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
 }
@@ -85,7 +85,7 @@ body.mobile-device #skipBtn:hover {
 
 #skipBtn {
   position: absolute;
-  left: 35%;
+  left: 50%;
   bottom: 10%;
   transform: translateX(-50%);
   padding: 15px 30px;
