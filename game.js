@@ -145,10 +145,11 @@ canvas.addEventListener('touchend', function(e) {
   let deltaX = touchEndX - touchStartX;
   const swipeThreshold = 40;
   // Swipe up to jump
-  if (deltaY < -swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+  if (deltaX > swipeThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Swipe right -> jump
     handleJumpTrigger();
-  } else if (deltaY > swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
-    // Swipe down to slide
+  } else if (deltaX < -swipeThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Swipe left -> slide
     startSlide();
   }
   touchStartY = null;
@@ -626,3 +627,4 @@ backgroundImg.src = "images/city.png";
 let backgroundX = 0;
 
 gameLoop();
+
