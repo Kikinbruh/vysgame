@@ -55,8 +55,8 @@ canvas {
 
 /* Mobile button positioning - account for 90-degree rotation */
 body.mobile-device #restartBtn {
-  top: 10px;
-  left: 10px;
+  top: 50%;
+  left: 20%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
 }
@@ -66,8 +66,8 @@ body.mobile-device #restartBtn:hover {
 }
 
 body.mobile-device #skipBtn {
-  top: 10px;
-  left: 50%;
+  top: 50%;
+  left: 80%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
 }
