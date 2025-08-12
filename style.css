@@ -24,14 +24,13 @@ canvas {
   height: 100vh;
   display: block;
 }
-
 .press-start-2p-regular {
   font-family: "Press Start 2P", system-ui;
   font-weight: 400;
   font-style: normal;
 }
 
-/* Desktop Button Styles */
+
 #restartBtn {
   position: absolute;
   top: 45%;
@@ -47,7 +46,53 @@ canvas {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+#restartBtn:hover {
+  background-color: #d43838;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* Mobile button positioning - account for 90-degree rotation */
+body.mobile-device #restartBtn {
+  top: 65%;
+  left: 75%;
+  transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
+  width: 60px;
+  height: 160px;
+  font-size: 16px;
+  padding: 10px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+body.mobile-device #restartBtn:hover {
+  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
+}
+
+body.mobile-device #skipBtn {
+  top: 50%;
+  left: 15%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  z-index: 1000;
+  width: 60px;
+  height: 160px;
+  font-size: 16px;
+  padding: 10px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+body.mobile-device #skipBtn:hover {
+  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
+}
+
+#gameContainer {
+  position: relative;
+  display: inline-block;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 #skipBtn {
@@ -65,47 +110,6 @@ canvas {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-/* Mobile Device Styles */
-body.mobile-device #gameContainer {
-  transform: rotate(90deg);
-  transform-origin: center center;
-  width: 100vh;
-  height: 100vw;
-}
-
-body.mobile-device canvas {
-  width: 100vh;
-  height: 100vw;
-}
-
-/* Mobile Button Adjustments */
-body.mobile-device #restartBtn {
-  position: fixed;
-  top: 50%;
-  left: 20px;
-  transform: translateY(-50%) rotate(90deg);
-  padding: 15px 30px;
-  margin: 0;
-}
-
-body.mobile-device #skipBtn {
-  position: fixed;
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%) rotate(90deg);
-  padding: 15px 30px;
-  margin: 0;
-  bottom: auto;
-  left: auto;
-}
-
-/* Hover Effects */
-#restartBtn:hover {
-  background-color: #d43838;
-  transform: translate(-50%, -50%) scale(1.05);
 }
 
 #skipBtn:hover {
@@ -113,10 +117,26 @@ body.mobile-device #skipBtn {
   transform: translateX(-50%) scale(1.05);
 }
 
-body.mobile-device #restartBtn:hover {
-  transform: translateY(-50%) rotate(90deg) scale(1.05);
+/* Mobile devices - always rotate 90 degrees */
+body.mobile-device #gameContainer {
+  transform: rotate(90deg);
+  transform-origin: center center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
 }
 
-body.mobile-device #skipBtn:hover {
-  transform: translateY(-50%) rotate(90deg) scale(1.05);
+body.mobile-device canvas {
+  width: 100vh;
+  height: 100vw;
+  display: block;
+}
+
+#restartBtn.mobile-landscape-rotate,
+#skipBtn.mobile-landscape-rotate {
+  left: 10px;
+  top: 10px;
+  z-index: 10;
 }
