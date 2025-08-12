@@ -44,6 +44,44 @@ let slideTimer = 0;
 const slideDuration = 50; // frames
 const restartBtn = document.getElementById('restartBtn');
 const skipBtn = document.getElementById('skipBtn');
+
+// Screen orientation handling
+let isLandscape = window.innerWidth > window.innerHeight;
+
+function handleOrientationChange() {
+  const wasLandscape = isLandscape;
+  isLandscape = window.innerWidth > window.innerHeight;
+  
+  // Only update if orientation actually changed
+  if (wasLandscape !== isLandscape) {
+    updateCanvasSize();
+  }
+}
+
+function updateCanvasSize() {
+  if (isLandscape) {
+    // Landscape: wider canvas
+    canvas.width = 1200;
+    canvas.height = 400;
+    groundY = 400; // adjust ground level
+  } else {
+    // Portrait: taller, narrower canvas
+    canvas.width = 800;
+    canvas.height = 600;
+    groundY = 600; // adjust ground level
+  }
+  
+  // Update player position to stay on ground
+  player.y = groundY - player.height;
+}
+
+// Listen for orientation changes
+window.addEventListener('resize', handleOrientationChange);
+window.addEventListener('orientationchange', handleOrientationChange);
+
+// Initial setup
+updateCanvasSize();
+
 window.addEventListener('keydown', (e) => {
   e.preventDefault();
   if (e.code === 'KeyW' || e.code === 'ArrowUp'){
