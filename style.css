@@ -1,3 +1,4 @@
+/* Base styles */
 body {
   background: #222;
   display: flex;
@@ -31,27 +32,26 @@ canvas {
   font-style: normal;
 }
 
-/* Desktop Buttons */
-#restartBtn,
-#skipBtn {
+/* Restart Button */
+#restartBtn {
   position: absolute;
+  top: 55%; /* Below the score */
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 15px 30px;
   font-size: 24px;
   font-family: 'Arial', sans-serif;
+  background-color: #ff4747;
   color: white;
   border: none;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-#restartBtn {
-  top: 55%; /* Below the score */
-  left: 50%;
-  background-color: #ff4747;
-  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
 #restartBtn:hover {
@@ -59,11 +59,26 @@ canvas {
   transform: translate(-50%, -50%) scale(1.05);
 }
 
+/* Skip Button */
 #skipBtn {
+  position: absolute;
   bottom: 10%;
   left: 50%;
-  background-color: #b925ca;
   transform: translateX(-50%);
+  padding: 15px 30px;
+  font-size: 24px;
+  font-family: 'Arial', sans-serif;
+  background-color: #b925ca;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
 #skipBtn:hover {
@@ -71,7 +86,7 @@ canvas {
   transform: translateX(-50%) scale(1.05);
 }
 
-/* Mobile rotated canvas */
+/* Mobile device adjustments */
 body.mobile-device #gameContainer {
   transform: rotate(90deg);
   transform-origin: center center;
@@ -88,35 +103,9 @@ body.mobile-device canvas {
   display: block;
 }
 
-/* Mobile rotated buttons — visually match desktop */
-body.mobile-device #restartBtn {
-  top: 50%;
-  left: 55%;
-  width: 160px;
-  height: 60px;
-  font-size: 16px;
-  padding: 10px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-body.mobile-device #restartBtn:hover {
-  transform: translate(-50%, -50%) rotate(90deg) scale(1.05);
-}
-
-body.mobile-device #skipBtn {
-  top: 90%;
-  left: 50%;
-  width: 160px;
-  height: 60px;
-  font-size: 16px;
-  padding: 10px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-body.mobile-device #skipBtn:hover {
-  transform: translate(-50%, -50%) rotate(90deg) scale(1.05);
+/* Rotate only the text inside buttons */
+body.mobile-device #restartBtn span,
+body.mobile-device #skipBtn span {
+  display: inline-block;
+  transform: rotate(90deg);
 }
