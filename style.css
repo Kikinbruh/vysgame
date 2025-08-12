@@ -80,8 +80,8 @@ body.mobile-device #restartBtn::before {
 }
 
 body.mobile-device #skipBtn {
-  top: 35%;
-  left: 25%;
+  top: 50%;
+  left: 15%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
   width: 80px;
