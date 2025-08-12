@@ -1,104 +1,142 @@
-body {
-  background: #222;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-}
+  body {
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
 
-#gameContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-}
+  #gameContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+  }
 
-canvas {
-  background: #ffffff;
-  border: 1px solid #000;
-  width: 100vw;
-  height: 100vh;
-  display: block;
-}
-.press-start-2p-regular {
-  font-family: "Press Start 2P", system-ui;
-  font-weight: 400;
-  font-style: normal;
-}
+  canvas {
+    background: #ffffff;
+    border: 1px solid #000;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+  }
+  .press-start-2p-regular {
+    font-family: "Press Start 2P", system-ui;
+    font-weight: 400;
+    font-style: normal;
+  }
 
 
-#restartBtn {
+  #restartBtn {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    font-size: 24px;
+    font-family: 'Arial', sans-serif;
+    background-color: #ff4747;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #restartBtn:hover {
+    background-color: #d43838;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+
+  /* Mobile button positioning - account for 90-degree rotation */
+  body.mobile-device #restartBtn {
+    top: 65%;
+    left: 75%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    z-index: 1000;
+    width: 60px;
+    height: 160px;
+    font-size: 16px;
+    padding: 10px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  body.mobile-device #restartBtn:hover {
+    transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
+  }
+
+  body.mobile-device #skipBtn {
+    top: 50%;
+    left: 15%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    z-index: 1000;
+    width: 60px;
+    height: 160px;
+    font-size: 16px;
+    padding: 10px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  body.mobile-device #skipBtn:hover {
+    transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
+  }
+
+  #gameContainer {
+    position: relative;
+    display: inline-block;
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+
+  #skipBtn {
+    position: absolute;
+    left: 50%;
+    bottom: 10%;
+    transform: translateX(-50%);
+    padding: 15px 30px;
+    font-size: 24px;
+    font-family: 'Arial', sans-serif;
+    background-color: #b925ca;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #skipBtn:hover {
+    background-color: #851ac8;
+    transform: translateX(-50%) scale(1.05);
+  }
+
+  /* Mobile devices - always rotate 90 degrees */
+  body.mobile-device #gameContainer {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vh;
+    height: 100vw;
+  }
+
+  body.mobile-device canvas {
+    width: 100vh;
+    height: 100vw;
+    display: block;
+  }
+body.mobile-device   #skipBtn {
   position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 15px 30px;
-  font-size: 24px;
-  font-family: 'Arial', sans-serif;
-  background-color: #ff4747;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-#restartBtn:hover {
-  background-color: #d43838;
-  transform: translate(-50%, -50%) scale(1.05);
-}
-
-/* Mobile button positioning - account for 90-degree rotation */
-body.mobile-device #restartBtn {
-  top: 65%;
-  left: 75%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  z-index: 1000;
-  width: 60px;
-  height: 160px;
-  font-size: 16px;
-  padding: 10px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-body.mobile-device #restartBtn:hover {
-  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
-}
-
-body.mobile-device #skipBtn {
-  top: 50%;
   left: 15%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  z-index: 1000;
-  width: 60px;
-  height: 160px;
-  font-size: 16px;
-  padding: 10px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-body.mobile-device #skipBtn:hover {
-  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
-}
-
-#gameContainer {
-  position: relative;
-  display: inline-block;
-  max-width: 100vw;
-  max-height: 100vh;
-}
-
-#skipBtn {
-  position: absolute;
-  left: 50%;
-  bottom: 10%;
+  bottom: 50%;
   transform: translateX(-50%);
   padding: 15px 30px;
   font-size: 24px;
@@ -112,31 +150,3 @@ body.mobile-device #skipBtn:hover {
   transition: all 0.3s ease;
 }
 
-#skipBtn:hover {
-  background-color: #851ac8;
-  transform: translateX(-50%) scale(1.05);
-}
-
-/* Mobile devices - always rotate 90 degrees */
-body.mobile-device #gameContainer {
-  transform: rotate(90deg);
-  transform-origin: center center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vh;
-  height: 100vw;
-}
-
-body.mobile-device canvas {
-  width: 100vh;
-  height: 100vw;
-  display: block;
-}
-
-#restartBtn.mobile-landscape-rotate,
-#skipBtn.mobile-landscape-rotate {
-  left: 10px;
-  top: 10px;
-  z-index: 10;
-}
