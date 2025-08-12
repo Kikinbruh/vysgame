@@ -4,14 +4,25 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
+
+#gameContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
 canvas {
   background: #ffffff;
   border: 1px solid #000;
-  width: 100%;
-  height: auto;
-  max-width: 100vw;
-  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  display: block;
 }
 .press-start-2p-regular {
   font-family: "Press Start 2P", system-ui;
@@ -66,26 +77,17 @@ canvas {
   transform: translateX(-50%) scale(1.05);
 }
 
-
+/* Mobile landscape - rotate 90 degrees */
 @media screen and (orientation: landscape) {
-  #gameContainer {
-    transform: rotate(0deg);
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
+  body.mobile-device #gameContainer {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    width: 100vh;
+    height: 100vw;
   }
-
-  canvas {
-    width: 100vw;
-    height: 100vh;
-    display: block;
-  }
-
-  body {
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
+  
+  body.mobile-device canvas {
+    width: 100vh;
+    height: 100vw;
   }
 }
