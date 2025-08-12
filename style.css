@@ -134,8 +134,8 @@
     display: block;
   }
   body.mobile-device #restartBtn {
-    left: 55%;
-    top: 50%;
+    left: 30%;
+    top: 65%;
     width: 160px;
     height: 60px;
     font-size: 16px;
@@ -150,8 +150,8 @@
   }
   
   body.mobile-device #skipBtn {
-    left: 50%;
-    top: 90%;
+    left: 30%;
+    top: 65%;
     width: 160px;
     height: 60px;
     font-size: 16px;
