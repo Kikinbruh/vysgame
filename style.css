@@ -77,17 +77,15 @@ canvas {
   transform: translateX(-50%) scale(1.05);
 }
 
-/* Mobile landscape - rotate 90 degrees */
-@media screen and (orientation: landscape) {
-  body.mobile-device #gameContainer {
-    transform: rotate(90deg);
-    transform-origin: center center;
-    width: 100vh;
-    height: 100vw;
-  }
-  
-  body.mobile-device canvas {
-    width: 100vh;
-    height: 100vw;
-  }
+/* Mobile devices - always rotate 90 degrees */
+body.mobile-device #gameContainer {
+  transform: rotate(90deg);
+  transform-origin: center center;
+  width: 100vh;
+  height: 100vw;
+}
+
+body.mobile-device canvas {
+  width: 100vh;
+  height: 100vw;
 }
