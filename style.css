@@ -55,12 +55,13 @@ canvas {
 
 /* Mobile button positioning - account for 90-degree rotation */
 body.mobile-device #restartBtn {
-  top: 60%;
-  left: 70%;
+  top: 55%;
+  left: 75%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
-  width: 120px;
-  height: 60px;
+  width: 80px;
+  height: 140px;
+  font-size: 0; /* Hide original text */
 }
 
 body.mobile-device #restartBtn:hover {
@@ -72,15 +73,20 @@ body.mobile-device #restartBtn::before {
   display: block;
   transform: rotate(90deg);
   white-space: nowrap;
+  font-size: 24px; /* Restore font size for rotated text */
+  font-family: 'Arial', sans-serif;
+  line-height: 140px; /* Center text vertically */
+  text-align: center;
 }
 
 body.mobile-device #skipBtn {
-  top: 40%;
-  left: 30%;
+  top: 35%;
+  left: 25%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
-  width: 120px;
-  height: 60px;
+  width: 80px;
+  height: 140px;
+  font-size: 0; /* Hide original text */
 }
 
 body.mobile-device #skipBtn:hover {
@@ -92,6 +98,10 @@ body.mobile-device #skipBtn::before {
   display: block;
   transform: rotate(90deg);
   white-space: nowrap;
+  font-size: 24px; /* Restore font size for rotated text */
+  font-family: 'Arial', sans-serif;
+  line-height: 140px; /* Center text vertically */
+  text-align: center;
 }
 
 #gameContainer {
