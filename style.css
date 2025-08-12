@@ -65,3 +65,12 @@ canvas {
   background-color: #851ac8;
   transform: translateX(-50%) scale(1.05);
 }
+
+@media screen and (orientation: landscape) {
+  #gameContainer {
+    transform: rotate(90deg);
+    transform-origin: center center;
+  }
+}
+
+
