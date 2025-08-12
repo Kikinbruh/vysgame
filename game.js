@@ -45,8 +45,20 @@ const slideDuration = 50; // frames
 const restartBtn = document.getElementById('restartBtn');
 const skipBtn = document.getElementById('skipBtn');
 
+// Device detection
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+         (window.innerWidth <= 768 && window.innerHeight <= 1024);
+}
+
 // Screen orientation handling
 let isLandscape = window.innerWidth > window.innerHeight;
+let isMobile = isMobileDevice();
+
+// Apply mobile class to body for CSS targeting
+if (isMobile) {
+  document.body.classList.add('mobile-device');
+}
 
 function handleOrientationChange() {
   const wasLandscape = isLandscape;
@@ -59,16 +71,30 @@ function handleOrientationChange() {
 }
 
 function updateCanvasSize() {
-  if (isLandscape) {
-    // Landscape: wider canvas
-    canvas.width = 1200;
-    canvas.height = 400;
-    groundY = 400; // adjust ground level
+  if (isMobile) {
+    // Mobile device behavior
+    if (isLandscape) {
+      // Landscape on mobile: rotate and resize to fit screen
+      canvas.width = window.innerHeight; // Use height as width when rotated
+      canvas.height = window.innerWidth; // Use width as height when rotated
+      groundY = window.innerWidth; // Ground level is now the screen width
+    } else {
+      // Portrait on mobile: normal sizing
+      canvas.width = 800;
+      canvas.height = 600;
+      groundY = 600;
+    }
   } else {
-    // Portrait: taller, narrower canvas
-    canvas.width = 800;
-    canvas.height = 600;
-    groundY = 600; // adjust ground level
+    // PC behavior - no rotation, just resize
+    if (isLandscape) {
+      canvas.width = 1200;
+      canvas.height = 400;
+      groundY = 400;
+    } else {
+      canvas.width = 800;
+      canvas.height = 600;
+      groundY = 600;
+    }
   }
   
   // Update player position to stay on ground
