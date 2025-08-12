@@ -81,6 +81,9 @@ canvas {
 body.mobile-device #gameContainer {
   transform: rotate(90deg);
   transform-origin: center center;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vh;
   height: 100vw;
 }
@@ -88,4 +91,5 @@ body.mobile-device #gameContainer {
 body.mobile-device canvas {
   width: 100vh;
   height: 100vw;
+  display: block;
 }
