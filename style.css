@@ -8,6 +8,10 @@ body {
 canvas {
   background: #ffffff;
   border: 1px solid #000;
+  width: 100%;
+  height: auto;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 .press-start-2p-regular {
   font-family: "Press Start 2P", system-ui;
@@ -36,6 +40,8 @@ canvas {
 #gameContainer {
   position: relative;
   display: inline-block;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 #skipBtn {
