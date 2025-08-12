@@ -55,8 +55,8 @@ canvas {
 
 /* Mobile button positioning - account for 90-degree rotation */
 body.mobile-device #restartBtn {
-  top: 50%;
-  left: 45%;
+  top: 10px;
+  left: 10px;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
 }
@@ -66,8 +66,8 @@ body.mobile-device #restartBtn:hover {
 }
 
 body.mobile-device #skipBtn {
-  top: 50%;
-  left: 85%;
+  top: 10px;
+  left: 50%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
 }
@@ -120,4 +120,11 @@ body.mobile-device canvas {
   width: 100vh;
   height: 100vw;
   display: block;
+}
+
+#restartBtn.mobile-landscape-rotate,
+#skipBtn.mobile-landscape-rotate {
+  left: 10px;
+  top: 10px;
+  z-index: 10;
 }
