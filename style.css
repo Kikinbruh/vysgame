@@ -1,4 +1,3 @@
-/* Base styles */
 body {
   background: #222;
   display: flex;
@@ -32,47 +31,44 @@ canvas {
   font-style: normal;
 }
 
-/* Desktop button styles */
-#restartBtn,
-#skipBtn {
+/* Desktop Button Styles */
+#restartBtn {
   position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 15px 30px;
   font-size: 24px;
   font-family: 'Arial', sans-serif;
+  background-color: #ff4747;
+  color: white;
   border: none;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   cursor: pointer;
   transition: all 0.3s ease;
-}
-
-#restartBtn {
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #ff4747;
-  color: white;
-}
-
-#restartBtn:hover {
-  background-color: #d43838;
-  transform: translate(-50%, -50%) scale(1.05);
+  z-index: 1000;
 }
 
 #skipBtn {
-  bottom: 10%;
+  position: absolute;
   left: 50%;
+  bottom: 10%;
   transform: translateX(-50%);
+  padding: 15px 30px;
+  font-size: 24px;
+  font-family: 'Arial', sans-serif;
   background-color: #b925ca;
   color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
-#skipBtn:hover {
-  background-color: #851ac8;
-  transform: translateX(-50%) scale(1.05);
-}
-
-/* Mobile rotation and layout */
+/* Mobile Device Styles */
 body.mobile-device #gameContainer {
   transform: rotate(90deg);
   transform-origin: center center;
@@ -85,35 +81,42 @@ body.mobile-device canvas {
   height: 100vw;
 }
 
-/* Mobile button overrides */
-body.mobile-device #restartBtn,
-body.mobile-device #skipBtn {
-  width: 160px;
-  height: 60px;
-  font-size: 16px;
-  padding: 10px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  transform: rotate(-90deg); /* counter-rotate text */
+/* Mobile Button Adjustments */
+body.mobile-device #restartBtn {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%) rotate(90deg);
+  padding: 15px 30px;
+  margin: 0;
 }
 
-/* Mobile button positions (visually same as desktop) */
-body.mobile-device #restartBtn {
-  left: 55%;
+body.mobile-device #skipBtn {
+  position: fixed;
   top: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg);
+  right: 20px;
+  transform: translateY(-50%) rotate(90deg);
+  padding: 15px 30px;
+  margin: 0;
+  bottom: auto;
+  left: auto;
+}
+
+/* Hover Effects */
+#restartBtn:hover {
+  background-color: #d43838;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+#skipBtn:hover {
+  background-color: #851ac8;
+  transform: translateX(-50%) scale(1.05);
 }
 
 body.mobile-device #restartBtn:hover {
-  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
-}
-
-body.mobile-device #skipBtn {
-  left: 50%;
-  top: 85%;
-  transform: translate(-50%, -50%) rotate(-90deg);
+  transform: translateY(-50%) rotate(90deg) scale(1.05);
 }
 
 body.mobile-device #skipBtn:hover {
-  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
+  transform: translateY(-50%) rotate(90deg) scale(1.05);
 }
