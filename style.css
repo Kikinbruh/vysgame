@@ -55,25 +55,43 @@ canvas {
 
 /* Mobile button positioning - account for 90-degree rotation */
 body.mobile-device #restartBtn {
-  top: 50%;
-  left: 80%;
+  top: 60%;
+  left: 70%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
+  width: 120px;
+  height: 60px;
 }
 
 body.mobile-device #restartBtn:hover {
   transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
 }
 
+body.mobile-device #restartBtn::before {
+  content: attr(data-text);
+  display: block;
+  transform: rotate(90deg);
+  white-space: nowrap;
+}
+
 body.mobile-device #skipBtn {
-  top: 50%;
-  left: 20%;
+  top: 40%;
+  left: 30%;
   transform: translate(-50%, -50%) rotate(-90deg);
   z-index: 1000;
+  width: 120px;
+  height: 60px;
 }
 
 body.mobile-device #skipBtn:hover {
   transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
+}
+
+body.mobile-device #skipBtn::before {
+  content: attr(data-text);
+  display: block;
+  transform: rotate(90deg);
+  white-space: nowrap;
 }
 
 #gameContainer {
