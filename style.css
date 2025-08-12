@@ -66,17 +66,10 @@ canvas {
   transform: translateX(-50%) scale(1.05);
 }
 
-@media screen and (orientation: landscape) {
-  #gameContainer {
-    transform: rotate(90deg);
-    transform-origin: center center;
-  }
-}
-
 
 @media screen and (orientation: landscape) {
   #gameContainer {
-    transform: rotate(0deg); /* Optional — keeps it upright */
+    transform: rotate(0deg);
     width: 100vw;
     height: 100vh;
     position: fixed;
@@ -87,12 +80,12 @@ canvas {
   canvas {
     width: 100vw;
     height: 100vh;
+    display: block;
   }
 
   body {
     overflow: hidden;
+    margin: 0;
+    padding: 0;
   }
 }
-
-
-
