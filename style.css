@@ -53,29 +53,6 @@ canvas {
   transform: translate(-50%, -50%) scale(1.05);
 }
 
-/* Mobile button positioning - account for 90-degree rotation */
-body.mobile-device #restartBtn {
-  top: 65%; /* moved down below the score */
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  z-index: 1000;
-}
-
-body.mobile-device #restartBtn:hover {
-  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
-}
-
-body.mobile-device #skipBtn {
-  top: 50%;
-  left: 85%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  z-index: 1000;
-}
-
-body.mobile-device #skipBtn:hover {
-  transform: translate(-50%, -50%) rotate(-90deg) scale(1.05);
-}
-
 #gameContainer {
   position: relative;
   display: inline-block;
@@ -105,6 +82,8 @@ body.mobile-device #skipBtn:hover {
   transform: translateX(-50%) scale(1.05);
 }
 
+/* --- MOBILE STYLES START HERE --- */
+
 /* Mobile devices - always rotate 90 degrees */
 body.mobile-device #gameContainer {
   transform: rotate(90deg);
@@ -112,12 +91,42 @@ body.mobile-device #gameContainer {
   position: fixed;
   top: 0;
   left: 0;
+  /* Make the container's dimensions match the rotated screen */
   width: 100vh;
   height: 100vw;
 }
 
 body.mobile-device canvas {
-  width: 100vh;
-  height: 100vw;
+  width: 100%; /* Fill the rotated container */
+  height: 100%;
   display: block;
+}
+
+/* Mobile: Position buttons inside the rotated container */
+/* We remove the 'rotate(-90deg)' so they stay rotated with the container */
+body.mobile-device #restartBtn,
+body.mobile-device #skipBtn {
+  position: absolute; /* Keep absolute positioning */
+  z-index: 1000;
+  width: auto;
+  min-width: 180px;
+  text-align: center;
+}
+
+/* Restart button: Position it in the center, just like on PC */
+body.mobile-device #restartBtn {
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Standard centering */
+}
+
+/* Skip button: Position it at the bottom center, just like on PC */
+body.mobile-device #skipBtn {
+  /* We unset top/right/left from any inherited rules */
+  top: auto;
+  right: auto;
+  /* And set it relative to the bottom */
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%); /* Center horizontally */
 }
