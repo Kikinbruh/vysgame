@@ -1,6 +1,8 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+let allScores = [];
+
 // Game variables
 let groundY = 300;
 let player = {
@@ -24,6 +26,12 @@ let isJumpingAnim = false;
 let jumpAnimFrame = 0;
 let jumpAnimTimer = 0;
 const jumpAnimFrameDuration = 12; // Slower animation (higher number = slower)
+let playerName = "";
+let hasSubmittedScore = false;
+const nameInputContainer = document.getElementById('nameInputContainer');
+const playerNameInput = document.getElementById('playerNameInput');
+const submitNameBtn = document.getElementById('submitNameBtn');
+
 
 // Front flip animation variables
 let isFrontFlipping = false;
@@ -44,6 +52,7 @@ let slideTimer = 0;
 const slideDuration = 50; // frames
 const restartBtn = document.getElementById('restartBtn');
 const skipBtn = document.getElementById('skipBtn');
+
 
 // Device detection
 function isMobileDevice() {
@@ -71,34 +80,28 @@ function handleOrientationChange() {
 }
 
 function updateCanvasSize() {
+  let w, h;
+
   if (isMobile) {
-    // Mobile device behavior
-    if (isLandscape) {
-      // Landscape on mobile: rotate and resize to fit screen
-      canvas.width = window.innerHeight; // Use height as width when rotated
-      canvas.height = window.innerWidth; // Use width as height when rotated
-      groundY = window.innerWidth; // Ground level is now the screen width
-    } else {
-      // Portrait on mobile: normal sizing
-      canvas.width = 800;
-      canvas.height = 600;
-      groundY = 600;
-    }
+    // On mobile, we ALWAYS want landscape.
+    // The canvas width should be the LONGER side of the screen.
+    // The canvas height should be the SHORTER side of the screen.
+    w = Math.max(window.innerWidth, window.innerHeight);
+    h = Math.min(window.innerWidth, window.innerHeight);
   } else {
-    // PC behavior - no rotation, just resize
-    if (isLandscape) {
-      canvas.width = 1200;
-      canvas.height = 400;
-      groundY = 400;
-    } else {
-      canvas.width = 800;
-      canvas.height = 600;
-      groundY = 600;
-    }
+    // Your original PC logic is fine.
+    // Let's keep it simple for now and use a fixed size.
+    w = 1200;
+    h = 400;
   }
-  
-  // Update player position to stay on ground
-  player.y = groundY - player.height;
+
+  // Set the canvas dimensions
+  canvas.width = w;
+  canvas.height = h;
+
+  // Update game variables that depend on canvas size
+  groundY = canvas.height; 
+  player.y = groundY - player.height; // Keep player on the ground
 }
 
 // Listen for orientation changes
@@ -109,13 +112,19 @@ window.addEventListener('orientationchange', handleOrientationChange);
 updateCanvasSize();
 
 window.addEventListener('keydown', (e) => {
-  e.preventDefault();
-  if (e.code === 'KeyW' || e.code === 'ArrowUp'){
-  handleJumpTrigger();
-}
-if (e.code === 'KeyS' || e.code === 'ArrowDown') {
-  startSlide();
-}
+  // Only prevent default if not typing in an input or textarea
+  if (
+    document.activeElement.tagName !== 'INPUT' &&
+    document.activeElement.tagName !== 'TEXTAREA'
+  ) {
+    e.preventDefault();
+    if (e.code === 'KeyW' || e.code === 'ArrowUp') {
+      handleJumpTrigger();
+    }
+    if (e.code === 'KeyS' || e.code === 'ArrowDown') {
+      startSlide();
+    }
+  }
 });
 
 // Touch controls for mobile
@@ -145,13 +154,15 @@ canvas.addEventListener('touchend', function(e) {
   let deltaX = touchEndX - touchStartX;
   const swipeThreshold = 40;
   // Swipe up to jump
-  if (deltaX > swipeThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
-    // Swipe right -> jump
+  if (deltaY < -swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+    // Swipe up → jump
     handleJumpTrigger();
-  } else if (deltaX < -swipeThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
-    // Swipe left -> slide
+  } else if (deltaY > swipeThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+    // Swipe down → slide
     startSlide();
   }
+  
+
   touchStartY = null;
   touchStartX = null;
   touchMoved = false;
@@ -274,13 +285,15 @@ function drawBackground() {
   ctx.drawImage(backgroundImg, Math.round(backgroundX + canvas.width), 0, canvas.width, canvas.height);
 }
 
+
 // Game loop
+
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
   // Always draw the live score counter at the top left
   ctx.fillStyle = "black";
-  ctx.font = "20px Arial";
+  ctx.font = "20px Arial"
   ctx.fillText("Skóre: " + score, 30, 40);
   drawPlayer();
 
@@ -396,23 +409,46 @@ function gameLoop() {
     const text0 = "Na cem muzeme chodit a na cem ne?";
     const text1 = "Ano";
     const text2 = "Ne";
-    ctx.fillText(text0, (canvas.width - ctx.measureText(text0).width) / 2, canvas.height / 2 - 60);
-    // Draw 'Ano' label and large obstacle images
-    const anoX = canvas.width / 4;
-    ctx.fillText(text1, anoX - ctx.measureText(text1).width / 2, canvas.height / 2);
-    let imgY = canvas.height / 2 + 10;
-    let imgSize = 40;
-    let imgSpacing = 10;
-    let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing) / 2);
-    for (let i = 0; i < obstacleImages.large.length; i++) {
-      ctx.drawImage(obstacleImages.large[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
-    }
-    // Draw 'Ne' label and small obstacle images
-    const neX = (canvas.width * 3) / 4;
-    ctx.fillText(text2, neX - ctx.measureText(text2).width / 2, canvas.height / 2);
-    startX = neX - ((obstacleImages.small.length * imgSize + (obstacleImages.small.length - 1) * imgSpacing) / 2);
-    for (let i = 0; i < obstacleImages.small.length; i++) {
-      ctx.drawImage(obstacleImages.small[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+    if (isMobile) {
+      // Mobile positioning for instructions
+      ctx.fillText(text0, (canvas.height - ctx.measureText(text0).width) / 2, canvas.width / 2 - 60);
+      // Draw 'Ano' label and large obstacle images
+      const anoX = canvas.height / 4;
+      ctx.fillText(text1, anoX - ctx.measureText(text1).width / 2, canvas.width / 2);
+      let imgY = canvas.width / 2 + 10;
+      let imgSize = 40;
+      let imgSpacing = 10;
+      let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing) / 2);
+      for (let i = 0; i < obstacleImages.large.length; i++) {
+        ctx.drawImage(obstacleImages.large[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+      }
+      // Draw 'Ne' label and small obstacle images
+      const neX = (canvas.height * 3) / 4;
+      ctx.fillText(text2, neX - ctx.measureText(text2).width / 2, canvas.width / 2);
+      startX = neX - ((obstacleImages.small.length * imgSize + (obstacleImages.small.length - 1) * imgSpacing) / 2);
+      for (let i = 0; i < obstacleImages.small.length; i++) {
+        ctx.drawImage(obstacleImages.small[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+      }
+    } else {
+      // PC positioning for instructions
+      ctx.fillText(text0, (canvas.width - ctx.measureText(text0).width) / 2, canvas.height / 2 - 60);
+      // Draw 'Ano' label and large obstacle images
+      const anoX = canvas.width / 4;
+      ctx.fillText(text1, anoX - ctx.measureText(text1).width / 2, canvas.height / 2);
+      let imgY = canvas.height / 2 + 10;
+      let imgSize = 40;
+      let imgSpacing = 10;
+      let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing) / 2);
+      for (let i = 0; i < obstacleImages.large.length; i++) {
+        ctx.drawImage(obstacleImages.large[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+      }
+      // Draw 'Ne' label and small obstacle images
+      const neX = (canvas.width * 3) / 4;
+      ctx.fillText(text2, neX - ctx.measureText(text2).width / 2, canvas.height / 2);
+      startX = neX - ((obstacleImages.small.length * imgSize + (obstacleImages.small.length - 1) * imgSpacing) / 2);
+      for (let i = 0; i < obstacleImages.small.length; i++) {
+        ctx.drawImage(obstacleImages.small[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+      }
     }
     showinstructions_timer--;
     if (showinstructions_timer <= 0) {
@@ -576,7 +612,37 @@ function gameLoop() {
     ctx.fillStyle = "red";
     ctx.font = "50px Arial";
     const score_display = "Finální skóre: " + score;
-    ctx.fillText(score_display, (canvas.width - ctx.measureText(score_display).width) / 2, canvas.height / 2 + 30);
+    const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
+    const scoreY = canvas.height / 2 + 80;
+    ctx.fillText(score_display, scoreX, scoreY);
+
+    // Load leaderboard and display it
+    loadAllScores((scores) => {
+      topScores = scores.slice(0, 3);
+
+      ctx.fillStyle = "black";
+      ctx.font = "28px Arial";
+      const leaderboardX = 30;
+      const leaderboardY = canvas.height / 2;
+      ctx.fillText("Leaderboard:", leaderboardX, leaderboardY);
+
+      ctx.font = "20px Arial";
+      for (let i = 0; i < topScores.length; i++) {
+        const entry = topScores[i];
+        const text = `${i + 1}. ${entry.name}: ${entry.score}`;
+        ctx.fillText(text, leaderboardX, leaderboardY + 30 + i * 28);
+      }
+
+      // --- Ask for name if player qualifies for top 3 and hasn't submitted yet ---
+      if (!hasSubmittedScore && (
+        topScores.length < 3 || score > topScores[topScores.length - 1].score
+      )) {
+        nameInputContainer.style.display = "block";
+      } else {
+        nameInputContainer.style.display = "none";
+      }
+    });
+
     showGameOver();
   }
 }
@@ -599,6 +665,19 @@ skipBtn.addEventListener('click', function() {
     cancelAnimationFrame(animationFrameId);
   }
   gameLoop();
+});
+
+submitNameBtn.addEventListener('click', function() {
+  const name = playerNameInput.value.trim() || "Hráč";
+  if (name.length > 0 && !hasSubmittedScore) {
+    submitScore(name, score);
+    hasSubmittedScore = true;
+    nameInputContainer.style.display = "none";
+    // Reload leaderboard after submitting
+    loadAllScores((scores) => {
+      topScores = scores.slice(0, 3);
+    });
+  }
 });
 
 function getRandomInterval() {
@@ -626,5 +705,49 @@ const backgroundImg = new Image();
 backgroundImg.src = "images/city.png";
 let backgroundX = 0;
 
+
 gameLoop();
 
+
+function submitScore(name, score) {
+  firebase.database().ref('scores').push({
+    name: name,
+    score: score,
+    date: new Date().toISOString()
+  })
+  .then(() => {
+    console.log('Score saved to Firebase successfully:', name, score);
+  })
+  .catch((error) => {
+    console.error('Error saving score to Firebase:', error);
+  });
+}
+
+function loadAllScores(callback) {
+  firebase.database().ref('scores').once('value')
+    .then(snapshot => {
+      const scoresArray = [];
+      snapshot.forEach(childSnapshot => {
+        const data = childSnapshot.val();
+        scoresArray.push({
+          name: data.name,
+          score: data.score,
+          date: data.date
+        });
+      });
+      // Sort descending by score
+      scoresArray.sort((a, b) => b.score - a.score);
+      callback(scoresArray);
+    })
+    .catch(error => {
+      console.error('Error loading scores from Firebase:', error);
+      callback([]);
+    });
+}
+
+let topScores = [];
+
+// Load scores once at start
+loadAllScores((scores) => {
+  topScores = scores.slice(0, 3); // Keep only top 3
+});
