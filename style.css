@@ -82,6 +82,58 @@ canvas {
   transform: translateX(-50%) scale(1.05);
 }
 
+#playerNameInput {
+  padding: 12px 18px;
+  font-size: 22px;
+  border: 2px solid #b925ca;
+  border-radius: 8px;
+  outline: none;
+  margin: 10px 0;
+  background: #fff8ff;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(185,37,202,0.08);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#playerNameInput:focus {
+  border-color: #ff4747;
+  box-shadow: 0 0 8px #ff474733;
+}
+
+#nameInputContainer {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255,255,255,0.95);
+  padding: 24px 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  display: none; /* shown by JS when needed */
+  z-index: 10;
+  text-align: center;
+}
+
+#submitNameBtn {
+  padding: 12px 28px;
+  font-size: 22px;
+  font-family: 'Arial', sans-serif;
+  background-color: #b925ca;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: 10px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+#submitNameBtn:hover {
+  background-color: #ff4747;
+  transform: scale(1.05);
+}
+
 /* --- MOBILE STYLES (orientation handling) --- */
 
 /* Portrait mode: Hide game and show overlay */
