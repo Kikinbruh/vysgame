@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Parkour Runner Game</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +15,34 @@
     <button id="restartBtn" style="display:none;" data-text="Hrát znovu">Hrát znovu</button>
     <button id="skipBtn" data-text="Přeskočit vysvětlení">Přeskočit vysvětlení</button>
   </div>
+  <div id="nameInputContainer">
+    <div id="congratsText" style="font-size:20px; color:#b925ca; margin-bottom:16px; font-family:'Press Start 2P', Arial, sans-serif; text-align:center;">
+      Gratuluji, tvé skóre je součástí top 3!
+    </div>
+    <input type="text" id="playerNameInput" maxlength="32" placeholder="Zadej své jméno a instagram">
+    <button id="submitNameBtn">Uložit skóre</button>
+  </div>
   <script src="game.js"></script>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+  
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCvZs2Dst9umuvZh60Ig5bxSDMA01an3QU",
+      authDomain: "team-vys-hra-leaderboard.firebaseapp.com",
+      databaseURL: "https://team-vys-hra-leaderboard-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "team-vys-hra-leaderboard",
+      storageBucket: "team-vys-hra-leaderboard.firebasestorage.app",
+      messagingSenderId: "688730293026",
+      appId: "1:688730293026:web:aabb6c47dcdc45014f9b7b",
+      measurementId: "G-WPLP6V9BY8"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </body>
 </html>
