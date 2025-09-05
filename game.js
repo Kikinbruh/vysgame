@@ -17,7 +17,7 @@ let player = {
 let gravity = 0.2; // Even slower fall
 let obstacles = [];
 let obstacleTimer = 0;
-let obstacleInterval = getRandomInterval();
+let obstacleInterval = getRandomInterval(false);
 let speedLevel = 0;
 const obstacleSpeed = 3 + speedLevel;     // how fast obstacles move left
 let gameOver = false;
@@ -461,7 +461,7 @@ function gameLoop() {
     obstacleTimer++;
     if (obstacleTimer >= obstacleInterval) {
       obstacleTimer = 0;
-    
+
       const minHeight = 40;
       const maxHeight = 200;
       const minWidth = 20;
@@ -469,31 +469,52 @@ function gameLoop() {
       const maxSingleWidth = 40;
       const requiresDoubleJump = Math.random() < 0.70;
       const isTopObstacle = Math.random() < 0.3;
-    
+      const isMultiObstacle = Math.random() < 0.2;
+
       let obstacleHeight, obstacleWidth, obstacleY, obsImg;
-    
-      if (isTopObstacle) {
+
+      if (isMultiObstacle) {
+        // Multi obstacle logic
+        const numMulti = Math.floor(Math.random() * 3) + 3; // 2-4 obstacles
+        obstacleHeight = 60; // You can adjust this
+        obstacleWidth = 50;  // You can adjust this
+        obstacleY = groundY - obstacleHeight;
+        obsImg = obstacleImages.multi;
+
+        // Place 2-4 multi obstacles next to each other
+        for (let i = 0; i < numMulti; i++) {
+          obstacles.push({
+            x: canvas.width + i * gap,
+            y: obstacleY,
+            width: obstacleWidth,
+            height: obstacleHeight,
+            img: obsImg
+          });
+        }
+      } else if (isTopObstacle) {
         // Top obstacle: player must slide under
         const slidingHitboxHeight = 28; // matches new sliding hitbox height
         obstacleHeight = groundY - slidingHitboxHeight;
         obstacleWidth = Math.floor(Math.random() * (7)) + 28;
         obstacleY = 0;
         obsImg = obstacleImages.up;
+        obstacles.push({
+          x: canvas.width,
+          y: obstacleY,
+          width: obstacleWidth,
+          height: obstacleHeight,
+          img: obsImg
+        });
       } else {
         // Bottom obstacle
         obstacleHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-    
         obstacleWidth = requiresDoubleJump
           ? Math.floor(Math.random() * (maxDoubleWidth - minWidth + 1)) + minWidth
           : Math.floor(Math.random() * (maxSingleWidth - minWidth + 1)) + minWidth;
-    
         // Clamp aspect ratio
         if (obstacleWidth > 1.5 * obstacleHeight) obstacleWidth = 1.5 * obstacleHeight;
         if (obstacleHeight > 1.5 * obstacleWidth) obstacleHeight = 1.5 * obstacleWidth;
-    
         obstacleY = groundY - obstacleHeight;
-    
-        // ✅ Use large image if taller than player (40px)
         if (obstacleHeight > player.height + 30) {
           obsImg = obstacleImages.large[0];
         } else if (obstacleHeight > 50) {
@@ -502,20 +523,17 @@ function gameLoop() {
         else {
           obsImg = obstacleImages.small[Math.floor(Math.random() * obstacleImages.small.length)];
         }
+        obstacles.push({
+          x: canvas.width,
+          y: obstacleY,
+          width: obstacleWidth,
+          height: obstacleHeight,
+          img: obsImg
+        });
       }
-    
-      obstacles.push({
-        x: canvas.width,
-        y: obstacleY,
-        width: obstacleWidth,
-        height: obstacleHeight,
-        img: obsImg
-      });
-    
-      obstacleInterval = getRandomInterval();
+
+      obstacleInterval = getRandomInterval(isMultiObstacle);
     }
-    
-    
 
     // Move obstacles and draw them
     for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -553,7 +571,7 @@ function gameLoop() {
         hitbox.x + hitbox.width > obs.x;
       // Only allow standing on large obstacles
       const isLargeObstacle = obstacleImages.large.includes(obs.img);
-      if (isOnTop && isLargeObstacle) {
+      if (isOnTop && isLargeObstacle || isOnTop && obs.img === obstacleImages.multi) {
         // Stand on large obstacle
         player.y = obs.y - player.height;
         player.vy = 0;
@@ -680,8 +698,21 @@ submitNameBtn.addEventListener('click', function() {
   }
 });
 
-function getRandomInterval() {
+playerNameInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    submitNameBtn.click();
+  }
+});
+
+
+const jumpDuration = 64; // frames the player is airborne
+const gap = jumpDuration * getObstacleSpeed() + 40; // minimum gap between obstacles
+function getRandomInterval(isMulti) {
+  if (!isMulti) {
   return Math.floor(Math.random() * 185) + 90;
+  } else {
+    return Math.floor(Math.random() * 300) + 300;
+  }
 }
 
 function getObstacleSpeed() {
@@ -691,8 +722,9 @@ function getObstacleSpeed() {
 // Preload obstacle images
 const obstacleImages = {
   up: new Image(),
-  large: [new Image(), new Image()], // obs4, obs2
-  small: [new Image(), new Image(), new Image()] // obs1, obcs5, obs3
+  large: [new Image(), new Image()],
+  small: [new Image(), new Image(), new Image()],
+  multi: new Image() // <-- Added multi obstacle image
 };
 obstacleImages.up.src = "images/up_obs.png";
 obstacleImages.large[0].src = "images/obs4.png";
@@ -700,6 +732,7 @@ obstacleImages.large[1].src = "images/obs2.png";
 obstacleImages.small[0].src = "images/obs1.png";
 obstacleImages.small[1].src = "images/obcs5.png";
 obstacleImages.small[2].src = "images/obs3.png";
+obstacleImages.multi.src = "images/multobs.png"; // <-- Load multi obstacle image
 
 const backgroundImg = new Image();
 backgroundImg.src = "images/city.png";
