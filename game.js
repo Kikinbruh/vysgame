@@ -892,10 +892,3 @@ let topScores = [];
 loadAllScores((scores) => {
   topScores = scores.slice(0, 3); // Keep only top 3
 });
-
-function goFullscreen() {
-  const el = document.documentElement; // or #gameCanvas if you prefer
-  if (el.requestFullscreen) el.requestFullscreen();
-  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); // Safari
-  else if (el.msRequestFullscreen) el.msRequestFullscreen(); // Old IE/Edge
-}
