@@ -892,3 +892,60 @@ let topScores = [];
 loadAllScores((scores) => {
   topScores = scores.slice(0, 3); // Keep only top 3
 });
+
+// Safari iOS fullscreen functionality
+document.addEventListener("DOMContentLoaded", () => {
+  let fullscreenTriggered = false;
+
+  function attemptFullscreen() {
+    if (fullscreenTriggered) return;
+    fullscreenTriggered = true;
+
+    // Hide address bar on mobile Safari by scrolling
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      // For iOS Safari, we rely on the meta tags and CSS
+      // Scroll to hide the address bar
+      setTimeout(() => {
+        window.scrollTo(0, 1);
+      }, 100);
+      return;
+    }
+
+    // For other browsers, try standard fullscreen API
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen().catch(() => {
+        // Fallback: just ensure proper viewport
+        window.scrollTo(0, 1);
+      });
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+    }
+  }
+
+  // Add event listeners for user interaction
+  canvas.addEventListener("touchstart", attemptFullscreen, { once: true });
+  canvas.addEventListener("click", attemptFullscreen, { once: true });
+
+  // Additional iOS Safari optimizations
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    // Prevent zoom on double tap
+    let lastTouchEnd = 0;
+    canvas.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+    // Hide address bar on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        window.scrollTo(0, 1);
+      }, 0);
+    });
+  }
+});
