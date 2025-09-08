@@ -323,6 +323,31 @@ function gameLoop() {
     }
   }
 
+  // Running animation logic
+  // Only animate running if player is on ground OR standing on a standable obstacle
+  let standingOnObstacle = false;
+  for (let obs of obstacles) {
+    const hitbox = {
+      x: player.x + (player.hitbox.offsetX || 0),
+      y: player.y + (player.hitbox.offsetY || 0),
+      width: player.hitbox.width || player.width,
+      height: player.hitbox.height || player.height
+    };
+    const playerBottom = hitbox.y + hitbox.height;
+    const obsTop = obs.y;
+    const isOnTop =
+      player.vy >= 0 &&
+      playerBottom <= obsTop + 6 &&
+      playerBottom >= obsTop - 6 &&
+      hitbox.x < obs.x + obs.width &&
+      hitbox.x + hitbox.width > obs.x;
+    const isLargeObstacle = obstacleImages.large.includes(obs.img);
+    if (isOnTop && isLargeObstacle || isOnTop && obs.img === obstacleImages.multi) {
+      standingOnObstacle = true;
+      break;
+    }
+  }
+
   if (isJumpingAnim) {
     jumpAnimTimer++;
     if (jumpAnimTimer >= jumpAnimFrameDuration) {
@@ -332,8 +357,8 @@ function gameLoop() {
         jumpAnimFrame = jumpFrames.length - 1; // Hold on last frame
       }
     }
-  } else if (!isSliding && player.y >= groundY - player.height) {
-    // Running animation
+  } else if (!isSliding && (player.y >= groundY - player.height || standingOnObstacle)) {
+    // Animate running if on ground or on a standable obstacle
     runningAnimTimer++;
     if (runningAnimTimer >= runningAnimFrameDuration) {
       runningAnimTimer = 0;
@@ -418,10 +443,14 @@ function gameLoop() {
       let imgY = canvas.width / 2 + 10;
       let imgSize = 40;
       let imgSpacing = 10;
-      let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing) / 2);
+      let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing + imgSize + imgSpacing) / 2);
+      // Draw large obstacles
       for (let i = 0; i < obstacleImages.large.length; i++) {
         ctx.drawImage(obstacleImages.large[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
       }
+      // Draw multi obstacle image next to large obstacles
+      ctx.drawImage(obstacleImages.multi, startX + obstacleImages.large.length * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+
       // Draw 'Ne' label and small obstacle images
       const neX = (canvas.height * 3) / 4;
       ctx.fillText(text2, neX - ctx.measureText(text2).width / 2, canvas.width / 2);
@@ -438,10 +467,14 @@ function gameLoop() {
       let imgY = canvas.height / 2 + 10;
       let imgSize = 40;
       let imgSpacing = 10;
-      let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing) / 2);
+      let startX = anoX - ((obstacleImages.large.length * imgSize + (obstacleImages.large.length - 1) * imgSpacing + imgSize + imgSpacing) / 2);
+      // Draw large obstacles
       for (let i = 0; i < obstacleImages.large.length; i++) {
         ctx.drawImage(obstacleImages.large[i], startX + i * (imgSize + imgSpacing), imgY, imgSize, imgSize);
       }
+      // Draw multi obstacle image next to large obstacles
+      ctx.drawImage(obstacleImages.multi, startX + obstacleImages.large.length * (imgSize + imgSpacing), imgY, imgSize, imgSize);
+
       // Draw 'Ne' label and small obstacle images
       const neX = (canvas.width * 3) / 4;
       ctx.fillText(text2, neX - ctx.measureText(text2).width / 2, canvas.height / 2);
@@ -474,23 +507,85 @@ function gameLoop() {
       let obstacleHeight, obstacleWidth, obstacleY, obsImg;
 
       if (isMultiObstacle) {
-        // Multi obstacle logic
-        const numMulti = Math.floor(Math.random() * 3) + 3; // 2-4 obstacles
-        obstacleHeight = 60; // You can adjust this
-        obstacleWidth = 50;  // You can adjust this
-        obstacleY = groundY - obstacleHeight;
+        // Multi obstacle logic: create 2-4 platforms with varying heights and longer widths
+        const numMulti = Math.floor(Math.random() * 3) + 2; // 2-4 platforms
+        const tileHeight = 60 // height of one tile (matches sprite aspect ratio)
+        const basePlatformLength = Math.floor(Math.random() * 3) + 3; // 3-5 tiles per platform
+        const tileWidth = 60; // width of one tile (matches sprite aspect ratio)
         obsImg = obstacleImages.multi;
 
-        // Place 2-4 multi obstacles next to each other
+        // The max vertical jump the player can make (tweak if needed)
+        const maxJumpHeight = 90;
+
+        // Track the rightmost X of the previous platform to prevent overlap
+        let platformStartX = canvas.width;
+        let lastY = groundY - tileHeight;
+        let prevPlatformLength = basePlatformLength;
+
         for (let i = 0; i < numMulti; i++) {
-          obstacles.push({
-            x: canvas.width + i * gap,
-            y: obstacleY,
-            width: obstacleWidth,
-            height: obstacleHeight,
-            img: obsImg
-          });
+          // For the first obstacle, always height of one tile and sits on ground
+          let stackCount = 1;
+          let thisY;
+          if (i === 0) {
+            stackCount = 1;
+            thisY = groundY - tileHeight;
+          } else {
+            // For others, pick a random stack count (height), but always a multiple of tileHeight
+            stackCount = Math.floor(Math.random() * 3) + 1; // 1-3 tiles high
+
+            // Calculate Y so the top is reachable from lastY
+            let maxReachableY = lastY - maxJumpHeight;
+            let minReachableY = lastY + maxJumpHeight;
+            let topY = Math.max(groundY - stackCount * tileHeight, maxReachableY);
+            topY = Math.min(topY, minReachableY);
+
+            // Clamp so it doesn't go below ground
+            if (topY + stackCount * tileHeight > groundY) {
+              topY = groundY - stackCount * tileHeight;
+            }
+            // Clamp so it doesn't go above the screen
+            if (topY < 0) {
+              topY = 0;
+            }
+            thisY = topY;
+          }
+
+          // Create a platform made of several tiles next to each other
+          const platformLength = basePlatformLength + Math.floor(Math.random() * 2); // 3-6 tiles
+
+          // Place this platform after the previous one to prevent overlap, with increased gap
+          if (i > 0) {
+            // Find the rightmost X of the previous platform and add gap
+            platformStartX += (prevPlatformLength * tileWidth) + 120; // 120px gap between platforms (increased)
+          }
+
+          // --- STACKING MECHANISM ---
+          // If the obstacle is "floating" (not touching ground), stack sprites to fill the gap
+          let totalStack = stackCount;
+          if (thisY + stackCount * tileHeight < groundY) {
+            // Calculate how many sprites needed to reach ground
+            const extraStack = Math.ceil((groundY - (thisY + stackCount * tileHeight)) / tileHeight);
+            totalStack += extraStack;
+          }
+
+          // Prevent overlapping by ensuring each tile is placed at a unique position
+          for (let t = 0; t < platformLength; t++) {
+            for (let s = 0; s < totalStack; s++) {
+              obstacles.push({
+                x: platformStartX + t * tileWidth,
+                y: thisY + s * tileHeight,
+                width: tileWidth,
+                height: tileHeight,
+                img: obsImg
+              });
+            }
+          }
+
+          lastY = thisY;
+          prevPlatformLength = platformLength; // Save for next loop
         }
+        // Set a longer interval after multi obstacles so nothing spawns immediately after
+        obstacleInterval = getRandomInterval(true) + numMulti * 40;
       } else if (isTopObstacle) {
         // Top obstacle: player must slide under
         const slidingHitboxHeight = 28; // matches new sliding hitbox height
@@ -706,7 +801,7 @@ playerNameInput.addEventListener('keydown', function(e) {
 
 
 const jumpDuration = 64; // frames the player is airborne
-const gap = jumpDuration * getObstacleSpeed() + 40; // minimum gap between obstacles
+const gap = jumpDuration * getObstacleSpeed() + 75; // minimum gap between obstacles
 function getRandomInterval(isMulti) {
   if (!isMulti) {
   return Math.floor(Math.random() * 185) + 90;
