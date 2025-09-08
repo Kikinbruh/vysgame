@@ -291,10 +291,16 @@ function drawBackground() {
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
-  // Always draw the live score counter at the top left
-  ctx.fillStyle = "black";
-  ctx.font = "20px Arial"
-  ctx.fillText("Skóre: " + score, 30, 40);
+  // Always draw the live score counter at the top left (adjusted for Safari address bar)
+  if (isMobile) {
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial"
+    ctx.fillText("Skóre: " + score, 30, 150); // Moved down from 40 to 100
+  } else {
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial"
+    ctx.fillText("Skóre: " + score, 30, 40); // Moved down from 40 to 100
+  }
   drawPlayer();
 
   player.vy += gravity;
@@ -735,21 +741,30 @@ function gameLoop() {
   if (!gameOver) {
     animationFrameId = requestAnimationFrame(gameLoop);
   } else {
+    if (!isMobile) {
     ctx.fillStyle = "red";
     ctx.font = "50px Arial";
     const score_display = "Finální skóre: " + score;
     const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
     const scoreY = canvas.height / 2 + 80;
     ctx.fillText(score_display, scoreX, scoreY);
-
+    }
+    else {
+      ctx.fillStyle = "red";
+      ctx.font = "50px Arial";
+      const score_display = "Finální skóre: " + score;
+      const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
+      const scoreY = canvas.height / 2 + 150;
+      ctx.fillText(score_display, scoreX, scoreY);
+    }
     // Load leaderboard and display it
     loadAllScores((scores) => {
       topScores = scores.slice(0, 3);
 
       ctx.fillStyle = "black";
       ctx.font = "28px Arial";
-      const leaderboardX = 30;
-      const leaderboardY = canvas.height / 2;
+      const leaderboardX = canvas.width - canvas.width / 3.5;
+      const leaderboardY = canvas.height / 2 - 100;
       ctx.fillText("Leaderboard:", leaderboardX, leaderboardY);
 
       ctx.font = "20px Arial";
@@ -896,6 +911,11 @@ loadAllScores((scores) => {
 // Safari iOS fullscreen functionality
 document.addEventListener("DOMContentLoaded", () => {
   let fullscreenTriggered = false;
+
+  // Add mobile class for CSS targeting
+  if (/iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    document.body.classList.add('mobile-device');
+  }
 
   function attemptFullscreen() {
     if (fullscreenTriggered) return;
