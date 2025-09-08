@@ -43,6 +43,21 @@
     
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+    function goFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) { // Safari
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { // IE11
+        elem.msRequestFullscreen();
+      }
+    }
+
+  // Example: trigger fullscreen when user clicks the canvas
+  document.getElementById("gameCanvas").addEventListener("click", () => {
+    goFullscreen();
+  });
   </script>
 </body>
 </html>
