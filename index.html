@@ -8,10 +8,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Optional: make canvas responsive */
+    #gameCanvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    body {
+      margin: 0;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body>
   <div id="gameContainer">
-    <canvas id="gameCanvas" width="800" height="300"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <button id="restartBtn" style="display:none;" data-text="Hrát znovu">Hrát znovu</button>
     <button id="skipBtn" data-text="Přeskočit vysvětlení">Přeskočit vysvětlení</button>
   </div>
@@ -22,14 +36,14 @@
     <input type="text" id="playerNameInput" maxlength="32" placeholder="Zadej své jméno a instagram">
     <button id="submitNameBtn">Uložit skóre</button>
   </div>
+
   <script src="game.js"></script>
-  
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-  
+
   <script>
-    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCvZs2Dst9umuvZh60Ig5bxSDMA01an3QU",
       authDomain: "team-vys-hra-leaderboard.firebaseapp.com",
@@ -40,24 +54,30 @@
       appId: "1:688730293026:web:aabb6c47dcdc45014f9b7b",
       measurementId: "G-WPLP6V9BY8"
     };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    function goFullscreen() {
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) { // Safari
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { // IE11
-        elem.msRequestFullscreen();
-      }
-    }
 
-  canvas.addEventListener("click", goFullscreen);
-  canvas.addEventListener("touchstart", goFullscreen);
-});
+    firebase.initializeApp(firebaseConfig);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const canvas = document.getElementById("gameCanvas");
+      let fullscreenTriggered = false;
+
+      function goFullscreen() {
+        if (fullscreenTriggered) return;
+        fullscreenTriggered = true;
+
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        }
+      }
+
+      canvas.addEventListener("click", goFullscreen);
+      canvas.addEventListener("touchstart", goFullscreen);
+    });
   </script>
 </body>
 </html>
-
