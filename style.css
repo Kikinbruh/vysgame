@@ -46,8 +46,13 @@ canvas {
   background: #ffffff;
   border: 1px solid #000;
   width: 100vw;
-  height: calc(100vh - 40px); /* Match container height */
+  height: 100vh;
   display: block;
+}
+
+/* Mobile devices: adjust for Safari address bar */
+body.mobile-device canvas {
+  margin-top: -60px; /* Pull canvas up to overlap Safari address bar on mobile */
 }
 
 .press-start-2p-regular {
