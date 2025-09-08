@@ -54,10 +54,10 @@
       }
     }
 
-  // Example: trigger fullscreen when user clicks the canvas
-  document.getElementById("gameCanvas").addEventListener("click", () => {
-    goFullscreen();
-  });
+  canvas.addEventListener("click", goFullscreen);
+  canvas.addEventListener("touchstart", goFullscreen);
+});
   </script>
 </body>
 </html>
+
