@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Parkour Runner Game</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +23,19 @@
       margin: 0;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
       overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Prevent iOS Safari bounce scrolling */
+    html, body {
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
   </style>
 </head>
@@ -57,32 +73,6 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const canvas = document.getElementById("gameCanvas");
-      let fullscreenTriggered = false;
-
-      function goFullscreen() {
-        if (fullscreenTriggered) return;
-        fullscreenTriggered = true;
-
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-          elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) {
-          elem.msRequestFullscreen();
-        }
-      }
-
-      canvas.addEventListener("touchstart", () => {
-        goFullscreen();
-      }, { once: true });
-
-      canvas.addEventListener("click", () => {
-        goFullscreen();
-      }, { once: true });
-  });
   </script>
 </body>
 </html>
