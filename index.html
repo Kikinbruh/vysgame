@@ -75,9 +75,14 @@
         }
       }
 
-      canvas.addEventListener("click", goFullscreen);
-      canvas.addEventListener("touchstart", goFullscreen);
-    });
+      canvas.addEventListener("touchstart", () => {
+        goFullscreen();
+      }, { once: true });
+
+      canvas.addEventListener("click", () => {
+        goFullscreen();
+      }, { once: true });
+  });
   </script>
 </body>
 </html>
