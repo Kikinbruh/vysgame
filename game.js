@@ -509,7 +509,7 @@ function gameLoop() {
       if (isMultiObstacle) {
         // Multi obstacle logic: create 2-4 platforms with varying heights and longer widths
         const numMulti = Math.floor(Math.random() * 3) + 2; // 2-4 platforms
-        const tileHeight = 60 // height of one tile (matches sprite aspect ratio)
+        const tileHeight = 60; // height of one tile (matches sprite aspect ratio)
         const basePlatformLength = Math.floor(Math.random() * 3) + 3; // 3-5 tiles per platform
         const tileWidth = 60; // width of one tile (matches sprite aspect ratio)
         obsImg = obstacleImages.multi;
@@ -521,6 +521,9 @@ function gameLoop() {
         let platformStartX = canvas.width;
         let lastY = groundY - tileHeight;
         let prevPlatformLength = basePlatformLength;
+
+        // Track the furthest right X of all multi obstacles
+        let multiObsRightEdge = platformStartX;
 
         for (let i = 0; i < numMulti; i++) {
           // For the first obstacle, always height of one tile and sits on ground
@@ -581,11 +584,21 @@ function gameLoop() {
             }
           }
 
+          // Update the rightmost edge for all multi obstacles
+          const thisPlatformRight = platformStartX + platformLength * tileWidth;
+          if (thisPlatformRight > multiObsRightEdge) {
+            multiObsRightEdge = thisPlatformRight;
+          }
+
           lastY = thisY;
           prevPlatformLength = platformLength; // Save for next loop
         }
         // Set a longer interval after multi obstacles so nothing spawns immediately after
         obstacleInterval = getRandomInterval(true) + numMulti * 40;
+
+        // Prevent other obstacles from spawning inside the multi obstacle zone
+        // By advancing obstacleTimer so the next spawn happens after multiObsRightEdge is off screen
+        obstacleTimer = -Math.ceil((multiObsRightEdge - canvas.width) / getObstacleSpeed());
       } else if (isTopObstacle) {
         // Top obstacle: player must slide under
         const slidingHitboxHeight = 28; // matches new sliding hitbox height
@@ -879,3 +892,10 @@ let topScores = [];
 loadAllScores((scores) => {
   topScores = scores.slice(0, 3); // Keep only top 3
 });
+
+function goFullscreen() {
+  const el = document.documentElement; // or #gameCanvas if you prefer
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); // Safari
+  else if (el.msRequestFullscreen) el.msRequestFullscreen(); // Old IE/Edge
+}
