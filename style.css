@@ -6,7 +6,19 @@ body {
   height: 100vh;
   overflow: hidden;
   margin: 0;
-  padding: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  position: fixed;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent iOS Safari bounce scrolling */
+html, body {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #gameContainer {
@@ -14,14 +26,14 @@ body {
   top: 0;
   left: 0;
   width: 100vw;
-  height: calc(100vh - 40px); /* Make container 40px shorter to avoid iPhone task bar */
+  height: calc(100vh); /* Make container 40px shorter to avoid iPhone task bar */
   /* You can adjust 40px to fit your needs */
 }
 
 /* Only shrink game area for mobile devices to avoid iPhone task bar */
 body.mobile-device #gameContainer,
 body.mobile-device canvas {
-  height: calc(100vh - 40px); /* Adjust 40px as needed */
+  height: calc(100vh); /* Adjust 40px as needed */
 }
 
 /* For desktop, use full height */
