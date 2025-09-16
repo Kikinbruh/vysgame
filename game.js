@@ -741,7 +741,11 @@ function gameLoop() {
   if (!gameOver) {
     animationFrameId = requestAnimationFrame(gameLoop);
   } else {
+    
     if (!isMobile) {
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
+    ctx.fillText("Skóre: " + score, 30, 40);
     ctx.fillStyle = "red";
     ctx.font = "50px Arial";
     const score_display = "Finální skóre: " + score;
@@ -750,11 +754,14 @@ function gameLoop() {
     ctx.fillText(score_display, scoreX, scoreY);
     }
     else {
+      ctx.fillStyle = "black";
+      ctx.font = "20px Arial";
+      ctx.fillText("Skóre: " + score, 30, 150);
       ctx.fillStyle = "red";
       ctx.font = "50px Arial";
       const score_display = "Finální skóre: " + score;
       const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
-      const scoreY = canvas.height / 2 + 150;
+      const scoreY = (canvas.height * 0.8);
       ctx.fillText(score_display, scoreX, scoreY);
     }
     // Load leaderboard and display it
@@ -763,8 +770,15 @@ function gameLoop() {
 
       ctx.fillStyle = "black";
       ctx.font = "28px Arial";
-      const leaderboardX = canvas.width - canvas.width / 3.5;
-      const leaderboardY = canvas.height / 2 - 100;
+      let leaderboardX, leaderboardY;
+      if (isMobile) {
+        leaderboardX = canvas.width - (canvas.width / 2.5);
+        leaderboardY = canvas.height / 2 - 80;
+      }
+      else{
+        leaderboardX = canvas.width - (canvas.width / 3.5);
+        leaderboardY = canvas.height / 2 - 150;
+      }
       ctx.fillText("Leaderboard:", leaderboardX, leaderboardY);
 
       ctx.font = "20px Arial";
