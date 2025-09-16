@@ -295,11 +295,11 @@ function gameLoop() {
   if (isMobile) {
     ctx.fillStyle = "black";
     ctx.font = "20px Arial"
-    ctx.fillText("Skóre: " + score, 30, 150); // Moved down from 40 to 100
+    ctx.fillText("Skóre: " + score + " m", 30, 150); // Moved down from 40 to 100
   } else {
     ctx.fillStyle = "black";
     ctx.font = "20px Arial"
-    ctx.fillText("Skóre: " + score, 30, 40); // Moved down from 40 to 100
+    ctx.fillText("Skóre: " + score + " m", 30, 40); // Moved down from 40 to 100
   }
   drawPlayer();
 
@@ -748,7 +748,7 @@ function gameLoop() {
     ctx.fillText("Skóre: " + score, 30, 40);
     ctx.fillStyle = "red";
     ctx.font = "50px Arial";
-    const score_display = "Finální skóre: " + score;
+    const score_display = "Finální skóre: " + score + " m";
     const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
     const scoreY = canvas.height / 2 + 80;
     ctx.fillText(score_display, scoreX, scoreY);
@@ -759,7 +759,7 @@ function gameLoop() {
       ctx.fillText("Skóre: " + score, 30, 150);
       ctx.fillStyle = "red";
       ctx.font = "50px Arial";
-      const score_display = "Finální skóre: " + score;
+      const score_display = "Finální skóre: " + score + " m";
       const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
       const scoreY = (canvas.height * 0.8);
       ctx.fillText(score_display, scoreX, scoreY);
@@ -784,7 +784,7 @@ function gameLoop() {
       ctx.font = "20px Arial";
       for (let i = 0; i < topScores.length; i++) {
         const entry = topScores[i];
-        const text = `${i + 1}. ${entry.name}: ${entry.score}`;
+        const text = `${i + 1}. ${entry.name}: ${entry.score}` + " m";
         ctx.fillText(text, leaderboardX, leaderboardY + 30 + i * 28);
       }
 
