@@ -45,9 +45,8 @@ body:not(.mobile-device) canvas {
 canvas {
   background: #ffffff;
   border: 1px solid #000;
-  width: 100vw;
-  height: 100vh;
   display: block;
+  margin: 0 auto;
 }
 
 /* Mobile devices: adjust for Safari address bar */
@@ -196,5 +195,10 @@ body.mobile-device canvas {
   body::before {
     content: none;
   }
+}
+
+body, #gameContainer {
+  height: 100%;
+  max-height: 100vh;
 }
 
