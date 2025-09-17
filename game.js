@@ -80,28 +80,31 @@ function handleOrientationChange() {
 }
 
 function updateCanvasSize() {
-  let w, h;
+  // Use a less wide aspect ratio for skinnier black bars
+  const aspectRatio = 2.5; // instead of 3
 
-  if (isMobile) {
-    // On mobile, we ALWAYS want landscape.
-    // The canvas width should be the LONGER side of the screen.
-    // The canvas height should be the SHORTER side of the screen.
-    w = Math.max(window.innerWidth, window.innerHeight);
-    h = Math.min(window.innerWidth, window.innerHeight);
-  } else {
-    // Your original PC logic is fine.
-    // Let's keep it simple for now and use a fixed size.
-    w = 1200;
-    h = 400;
+  let windowWidth = window.innerWidth;
+  let windowHeight = window.innerHeight;
+
+  // Calculate the maximum canvas size that fits in the window while preserving aspect ratio
+  let w = windowWidth;
+  let h = windowWidth / aspectRatio;
+  if (h > windowHeight) {
+    h = windowHeight;
+    w = h * aspectRatio;
   }
 
-  // Set the canvas dimensions
-  canvas.width = w;
-  canvas.height = h;
+  // Set the canvas size
+  canvas.width = 1200;
+  canvas.height = 480; // slightly taller for 2.5:1
+
+  // Scale the canvas using CSS to fit the available space
+  canvas.style.width = w + "px";
+  canvas.style.height = h + "px";
 
   // Update game variables that depend on canvas size
-  groundY = canvas.height; 
-  player.y = groundY - player.height; // Keep player on the ground
+  groundY = canvas.height;
+  player.y = groundY - player.height;
 }
 
 // Listen for orientation changes
@@ -750,7 +753,7 @@ function gameLoop() {
     ctx.font = "50px Arial";
     const score_display = "Finální skóre: " + score + " m";
     const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
-    const scoreY = canvas.height / 2 + 80;
+    const scoreY = canvas.height * 0.75;
     ctx.fillText(score_display, scoreX, scoreY);
     }
     else {
@@ -761,7 +764,7 @@ function gameLoop() {
       ctx.font = "50px Arial";
       const score_display = "Finální skóre: " + score + " m";
       const scoreX = (canvas.width - ctx.measureText(score_display).width) / 2;
-      const scoreY = (canvas.height * 0.8);
+      const scoreY = (canvas.height * 0.9);
       ctx.fillText(score_display, scoreX, scoreY);
     }
     // Load leaderboard and display it
@@ -783,9 +786,33 @@ function gameLoop() {
 
       ctx.font = "20px Arial";
       for (let i = 0; i < topScores.length; i++) {
+        let medal = "";
+        if (i === 0) medal = "🥇​";
+        else if (i === 1) medal = "🥈​";
+        else if (i === 2) medal = "🥉​";
         const entry = topScores[i];
-        const text = `${i + 1}. ${entry.name}: ${entry.score}` + " m";
-        ctx.fillText(text, leaderboardX, leaderboardY + 30 + i * 28);
+        const text = ``;
+        ctx.fillText(text, leaderboardX, leaderboardY + 30 + (i + 1) * 28);        // ...existing code...
+        for (let i = 0; i < topScores.length; i++) {
+          let medal = "";
+          let color = "black";
+          if (i === 0) {
+            medal = "🥇​";
+            color = "#FFD700"; // Gold
+          } else if (i === 1) {
+            medal = "🥈​";
+            color = "#C0C0C0"; // Silver
+          } else if (i === 2) {
+            medal = "🥉​";
+            color = "#CD7F32"; // Bronze
+          }
+          ctx.fillStyle = color;
+          const entry = topScores[i];
+          const text = `${medal} ${entry.name}: ${entry.score} m`;
+          ctx.fillText(text, leaderboardX, leaderboardY + 30 + (i + 1) * 28);
+        }
+        ctx.fillStyle = "black"; // Reset to default after drawing leaderboard
+        // ...existing code...
       }
 
       // --- Ask for name if player qualifies for top 3 and hasn't submitted yet ---
