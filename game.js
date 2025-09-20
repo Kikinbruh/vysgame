@@ -305,6 +305,7 @@ function gameLoop() {
     ctx.fillText("Skóre: " + score + " m", 30, 40); // Moved down from 40 to 100
   }
   drawPlayer();
+  
 
   player.vy += gravity;
   player.y += player.vy;
@@ -651,6 +652,11 @@ function gameLoop() {
 
       obstacleInterval = getRandomInterval(isMultiObstacle);
     }
+    loadAllScores((scores) => {
+  topScores = scores.slice(0, 3);
+  showLeaderboard();
+  });
+    showLeaderboard();
 
     // Move obstacles and draw them
     for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -744,7 +750,7 @@ function gameLoop() {
   if (!gameOver) {
     animationFrameId = requestAnimationFrame(gameLoop);
   } else {
-    
+
     if (!isMobile) {
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
@@ -770,51 +776,7 @@ function gameLoop() {
     // Load leaderboard and display it
     loadAllScores((scores) => {
       topScores = scores.slice(0, 3);
-
-      ctx.fillStyle = "black";
-      ctx.font = "28px Arial";
-      let leaderboardX, leaderboardY;
-      if (isMobile) {
-        leaderboardX = canvas.width - (canvas.width / 2.5);
-        leaderboardY = canvas.height / 2 - 80;
-      }
-      else{
-        leaderboardX = canvas.width - (canvas.width / 3.5);
-        leaderboardY = canvas.height / 2 - 150;
-      }
-      ctx.fillText("Leaderboard:", leaderboardX, leaderboardY);
-
-      ctx.font = "20px Arial";
-      for (let i = 0; i < topScores.length; i++) {
-        let medal = "";
-        if (i === 0) medal = "🥇​";
-        else if (i === 1) medal = "🥈​";
-        else if (i === 2) medal = "🥉​";
-        const entry = topScores[i];
-        const text = ``;
-        ctx.fillText(text, leaderboardX, leaderboardY + 30 + (i + 1) * 28);        // ...existing code...
-        for (let i = 0; i < topScores.length; i++) {
-          let medal = "";
-          let color = "black";
-          if (i === 0) {
-            medal = "🥇​";
-            color = "#FFD700"; // Gold
-          } else if (i === 1) {
-            medal = "🥈​";
-            color = "#C0C0C0"; // Silver
-          } else if (i === 2) {
-            medal = "🥉​";
-            color = "#CD7F32"; // Bronze
-          }
-          ctx.fillStyle = color;
-          const entry = topScores[i];
-          const text = `${medal} ${entry.name}: ${entry.score} m`;
-          ctx.fillText(text, leaderboardX, leaderboardY + 30 + (i + 1) * 28);
-        }
-        ctx.fillStyle = "black"; // Reset to default after drawing leaderboard
-        // ...existing code...
-      }
-
+      showLeaderboard();
       // --- Ask for name if player qualifies for top 3 and hasn't submitted yet ---
       if (!hasSubmittedScore && (
         topScores.length < 3 || score > topScores[topScores.length - 1].score
@@ -1010,3 +972,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+function showLeaderboard() {
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = "#fff";
+  let leaderboardX, leaderboardY;
+  if (isMobile) {
+    leaderboardX = canvas.width - (canvas.width / 2.5);
+    leaderboardY = canvas.height / 2 - 80;
+  } else {
+    leaderboardX = canvas.width - (canvas.width / 3.5);
+    leaderboardY = canvas.height / 2 - 150;
+  }
+  ctx.fillStyle = "black";
+  ctx.font = "28px Arial";
+  ctx.fillText("Leaderboard:", leaderboardX, leaderboardY);
+  ctx.font = "20px Arial";
+  for (let i = 0; i < topScores.length; i++) {
+    let medal = "";
+    let color = "black";
+    if (i === 0) {
+      medal = "🥇​";
+      color = "#FFD700";
+    } else if (i === 1) {
+      medal = "🥈​";
+      color = "#C0C0C0";
+    } else if (i === 2) {
+      medal = "🥉​";
+      color = "#CD7F32";
+    }
+    ctx.fillStyle = color;
+    const entry = topScores[i];
+    const text = `${medal} ${entry.name}: ${entry.score} m`;
+    ctx.fillText(text, leaderboardX, leaderboardY + 30 + (i + 1) * 28);
+  }
+  ctx.restore();
+}
