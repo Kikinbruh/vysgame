@@ -1,7 +1,11 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+
 let allScores = [];
+let topScores = [];
+let loaded = false
+
 
 // Game variables
 let groundY = 300;
@@ -14,6 +18,7 @@ let player = {
   jumping: false,
   hitbox: { offsetX: 0, offsetY: 0, width: 40, height: 40 } // was 30x30
 };
+const inserts = getSafeAreaInsets();
 let gravity = 0.2; // Even slower fall
 let obstacles = [];
 let obstacleTimer = 0;
@@ -205,6 +210,9 @@ function startSlide() {
   }
 }
 
+
+
+
 const jumpFrames = [];
 const totalJumpFrames = 5;
 let jumpFramesLoaded = 0;
@@ -291,6 +299,7 @@ function drawBackground() {
 
 // Game loop
 
+
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
@@ -298,11 +307,18 @@ function gameLoop() {
   if (isMobile) {
     ctx.fillStyle = "black";
     ctx.font = "20px Arial"
-    ctx.fillText("Skóre: " + score + " m", 30, 150); // Moved down from 40 to 100
+    ctx.fillText("Skóre: " + score + " m", 30, (canvas.height) * 0.4 - inserts.bottom); // Moved down from 40 to 100
   } else {
     ctx.fillStyle = "black";
     ctx.font = "20px Arial"
     ctx.fillText("Skóre: " + score + " m", 30, 40); // Moved down from 40 to 100
+  }
+  if (!loaded && jumpFramesLoaded === totalJumpFrames && slidingFramesLoaded === totalSlidingFrames && running_loaded === total_runningframes) {
+    loaded = true;
+        loadAllScores((scores) => {
+      topScores = scores.slice(0, 3);
+      showLeaderboard();
+        });
   }
   drawPlayer();
   
@@ -652,10 +668,6 @@ function gameLoop() {
 
       obstacleInterval = getRandomInterval(isMultiObstacle);
     }
-    loadAllScores((scores) => {
-  topScores = scores.slice(0, 3);
-  showLeaderboard();
-  });
     showLeaderboard();
 
     // Move obstacles and draw them
@@ -763,9 +775,6 @@ function gameLoop() {
     ctx.fillText(score_display, scoreX, scoreY);
     }
     else {
-      ctx.fillStyle = "black";
-      ctx.font = "20px Arial";
-      ctx.fillText("Skóre: " + score, 30, 150);
       ctx.fillStyle = "red";
       ctx.font = "50px Arial";
       const score_display = "Finální skóre: " + score + " m";
@@ -775,8 +784,6 @@ function gameLoop() {
     }
     // Load leaderboard and display it
     loadAllScores((scores) => {
-      topScores = scores.slice(0, 3);
-      showLeaderboard();
       // --- Ask for name if player qualifies for top 3 and hasn't submitted yet ---
       if (!hasSubmittedScore && (
         topScores.length < 3 || score > topScores[topScores.length - 1].score
@@ -813,7 +820,7 @@ skipBtn.addEventListener('click', function() {
 
 submitNameBtn.addEventListener('click', function() {
   const name = playerNameInput.value.trim() || "Hráč";
-  if (name.length > 0 && !hasSubmittedScore) {
+  if (name.length > 0 && !hasSubmittedScore && name != "Hráč") {
     submitScore(name, score);
     hasSubmittedScore = true;
     nameInputContainer.style.display = "none";
@@ -904,12 +911,6 @@ function loadAllScores(callback) {
     });
 }
 
-let topScores = [];
-
-// Load scores once at start
-loadAllScores((scores) => {
-  topScores = scores.slice(0, 3); // Keep only top 3
-});
 
 // Safari iOS fullscreen functionality
 document.addEventListener("DOMContentLoaded", () => {
@@ -1007,4 +1008,32 @@ function showLeaderboard() {
     ctx.fillText(text, leaderboardX, leaderboardY + 30 + (i + 1) * 28);
   }
   ctx.restore();
+}
+function getSafeAreaInsets() {
+  // Try to use visualViewport if available (most modern browsers)
+  if (window.visualViewport) {
+    return {
+      left: window.visualViewport.offsetLeft || 0,
+      right: (window.innerWidth - window.visualViewport.width - (window.visualViewport.offsetLeft || 0)) || 0,
+      top: window.visualViewport.offsetTop || 0,
+      bottom: (window.innerHeight - window.visualViewport.height - (window.visualViewport.offsetTop || 0)) || 0
+    };
+  }
+  // Fallback: read from CSS env variables (works on iOS Safari)
+  const div = document.createElement('div');
+  div.style.cssText = `
+    position: absolute; visibility: hidden;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  `;
+  document.body.appendChild(div);
+  const style = getComputedStyle(div);
+  const left = parseInt(style.paddingLeft) || 0;
+  const right = parseInt(style.paddingRight) || 0;
+  const top = parseInt(style.paddingTop) || 0;
+  const bottom = parseInt(style.paddingBottom) || 0;
+  document.body.removeChild(div);
+  return { left, right, top, bottom };
 }
