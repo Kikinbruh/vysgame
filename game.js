@@ -821,6 +821,10 @@ skipBtn.addEventListener('click', function() {
 submitNameBtn.addEventListener('click', function() {
   const name = playerNameInput.value.trim() || "Hráč";
   if (name.length > 0 && !hasSubmittedScore && name != "Hráč") {
+    if (name.length > 18) {
+      alert("Jméno nesmí být delší než 16 znaků.");
+    }
+    else{
     submitScore(name, score);
     hasSubmittedScore = true;
     nameInputContainer.style.display = "none";
@@ -828,6 +832,7 @@ submitNameBtn.addEventListener('click', function() {
     loadAllScores((scores) => {
       topScores = scores.slice(0, 3);
     });
+    }
   }
 });
 
@@ -857,7 +862,7 @@ const obstacleImages = {
   up: new Image(),
   large: [new Image(), new Image()],
   small: [new Image(), new Image(), new Image()],
-  multi: new Image() // <-- Added multi obstacle image
+  multi: new Image()
 };
 obstacleImages.up.src = "images/up_obs.png";
 obstacleImages.large[0].src = "images/obs4.png";
@@ -865,7 +870,12 @@ obstacleImages.large[1].src = "images/obs2.png";
 obstacleImages.small[0].src = "images/obs1.png";
 obstacleImages.small[1].src = "images/obcs5.png";
 obstacleImages.small[2].src = "images/obs3.png";
-obstacleImages.multi.src = "images/multobs.png"; // <-- Load multi obstacle image
+obstacleImages.multi.src = "images/multobs.png";
+
+// Preload vyslogo image
+const vysLogoImg = new Image();
+vysLogoImg.src = "images/vyslogo.png";
+
 
 const backgroundImg = new Image();
 backgroundImg.src = "images/city.png";
@@ -988,6 +998,21 @@ function showLeaderboard() {
   ctx.fillStyle = "black";
   ctx.font = "28px Arial";
   ctx.fillText("Leaderboard:", leaderboardX, leaderboardY);
+
+  // Draw vyslogo.png next to the leaderboard title
+  // Adjust these values as needed for your layout
+  const logoSize = 40;
+  const logoOffsetX = 20; // space between text and logo
+  if (vysLogoImg.complete) {
+    ctx.drawImage(
+      vysLogoImg,
+      leaderboardX + ctx.measureText("Leaderboard:").width + logoOffsetX,
+      leaderboardY - logoSize + 8,
+      logoSize,
+      logoSize
+    );
+  }
+
   ctx.font = "20px Arial";
   for (let i = 0; i < topScores.length; i++) {
     let medal = "";
