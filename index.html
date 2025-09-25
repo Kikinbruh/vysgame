@@ -11,33 +11,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Optional: make canvas responsive */
-    #gameCanvas {
-      width: 100vw;
-      height: 100vh;
-      display: block;
-    }
-
-    body {
-      margin: 0;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      overflow: hidden;
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    /* Prevent iOS Safari bounce scrolling */
-    html, body {
-      touch-action: manipulation;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-  </style>
 </head>
 <body>
   <div id="gameContainer">
@@ -47,7 +20,7 @@
   </div>
   <div id="nameInputContainer">
     <div id="congratsText" style="font-size:20px; color:#b925ca; margin-bottom:16px; font-family:'Press Start 2P', Arial, sans-serif; text-align:center;">
-      Gratuluji, tvé skóre je součástí top 3!
+      Gratuluji, jsi součástí top 3!
     </div>
     <input type="text" id="playerNameInput" maxlength="32" placeholder="Zadej instagram/Facebook">
     <button id="submitNameBtn">Uložit skóre</button>
@@ -76,4 +49,3 @@
   </script>
 </body>
 </html>
-
